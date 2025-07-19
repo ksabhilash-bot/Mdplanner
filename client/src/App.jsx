@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 function App() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     const getMessage = async () => {
-      const res = await fetch("http://localhost:5000");
-      const data = await res.json();
-      setMessage(data.message);
+      const res = await axios.get("/api");
+      setMessage(res.data.message);
     };
 
     getMessage();
