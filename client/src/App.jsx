@@ -1,23 +1,13 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import LandingPage from "./components/landingPage";
+import { ThemeProvider } from "@/components/theme-provider";
+// import { ModeToggle } from "@/components/mode-toggle";
 
 function App() {
-  const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    const getMessage = async () => {
-      const res = await axios.get("/api");
-      setMessage(res.data.message);
-    };
-
-    getMessage();
-  }, []);
-
   return (
-    <div>
-      <h1>Frontend</h1>
-      <p>Message from backend: {message}</p>
-    </div>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      {/* <ModeToggle /> */}
+      <LandingPage />
+    </ThemeProvider>
   );
 }
 
