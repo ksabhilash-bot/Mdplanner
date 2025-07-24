@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "@fontsource/inter"; /* All weights */
+/* @import "@fontsource/inter"; All weights */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -119,7 +119,7 @@
     @apply bg-background text-foreground;
   }
 }
-:root {
+/* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -132,50 +132,36 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
+} */
 
-a {
+/* a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
 }
 a:hover {
   color: #535bf2;
-}
+} */
 
-body {
+/* body {
   margin: 0;
   display: flex;
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-}
+} */
 
-h1 {
+/* h1 {
   font-size: 3.2em;
   line-height: 1.1;
-}
+} */
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
+/* button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
+} */
 
-@media (prefers-color-scheme: light) {
+/* @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
@@ -186,15 +172,30 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-}
+} */
 body {
   font-family: "DM Sans", sans-serif;
 }
 
 /* Force navbar links to be black in light mode and white in dark mode */
-.navbar a {
+/* .navbar a {
   color: #000;
-}
-.dark .navbar a {
+} */
+/* .dark .navbar a {
   color: #fff;
+} */
+/* In your global CSS file
+.dark .mode-toggle svg {
+  color: white !important;
+} */
+
+/* index.css or global.css */
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+html {
+  scroll-behavior: smooth;
 }

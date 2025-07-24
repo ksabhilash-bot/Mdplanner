@@ -18,7 +18,7 @@ app.get("/", (req, res) => res.json({ message: "Hello from backend!" }));
 const startServer = async () => {
   try {
     // Connect to db
-    // await connectToDb();
+    await connectToDb();
 
     // Start server
     app.listen(PORT, () => {

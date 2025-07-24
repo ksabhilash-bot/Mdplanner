@@ -25,8 +25,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Link } from "react-router-dom";
+// import Navbar from "@/components/ui/navbar"; // Import the new Navbar component
+import { useLocation } from "react-router-dom";
 
 export default function DietPlannerLanding() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const hash = location.hash;
+    if (hash) {
+      let el = document.querySelector(hash);
+      if (el) {
+        el.scrollIntoView();
+      }
+    }
+  }, [location]);
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
@@ -115,87 +130,7 @@ export default function DietPlannerLanding() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
-      <nav className="navbar border-b border-border bg-background/95 backdrop-blur-sm fixed w-full z-50">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-2">
-              <Brain className="h-8 w-8 text-black dark:text-white" />
-              <span className="text-2xl font-bold text-black dark:text-white">
-                NutriAI
-              </span>
-            </div>
-
-            <div className="hidden md:flex items-center space-x-8">
-              <a
-                href="#features"
-                className="text-black dark:text-white hover:text-black dark:hover:text-white transition-colors"
-              >
-                Features
-              </a>
-              <a
-                href="#how-it-works"
-                className="text-black dark:text-white hover:text-black dark:hover:text-white transition-colors"
-              >
-                How It Works
-              </a>
-              {/* <a
-                href="#testimonials"
-                className="text-black dark:text-white hover:text-black dark:hover:text-white transition-colors"
-              >
-                Reviews
-              </a> */}
-              <Button className="bg-black text-white dark:bg-gray-800 dark:text-white mr-2">
-                Sign In
-              </Button>
-              {/* <Button className="bg-black text-white dark:bg-gray-800 dark:text-white">
-                Get Started
-              </Button> */}
-              <ModeToggle />
-            </div>
-
-            <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                {isMenuOpen ? <X /> : <Menu />}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile menu */}
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-border bg-background">
-            <div className="px-4 py-4 space-y-4">
-              <a
-                href="#features"
-                className="block text-muted-foreground hover:text-foreground"
-              >
-                Features
-              </a>
-              <a
-                href="#how-it-works"
-                className="block text-muted-foreground hover:text-foreground"
-              >
-                How It Works
-              </a>
-              {/* <a
-                href="#testimonials"
-                className="block text-muted-foreground hover:text-foreground"
-              >
-                Reviews
-              </a> */}
-              <div className="flex flex-col space-y-2 pt-4">
-                <Button variant="outline">Sign In</Button>
-                {/* <Button>Get Started</Button> */}
-              </div>
-            </div>
-          </div>
-        )}
-      </nav>
-
+      {/* <Navbar /> */}
       {/* Hero Section */}
       <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="w-full">
@@ -215,13 +150,18 @@ export default function DietPlannerLanding() {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
+              {/* <Button
                 size="lg"
                 className="text-lg px-8 py-6 group bg-black text-white dark:bg-gray-800 dark:text-white"
               >
                 Start Your Journey
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Button> */}
+              <Button>
+                Start Your Journey
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
+
               {/* <Button
                 size="lg"
                 className="text-lg px-8 py-6 border-2 bg-black text-white dark:bg-gray-800 dark:text-white"
@@ -401,12 +341,8 @@ export default function DietPlannerLanding() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button
-              size="lg"
-              className="text-lg px-8 py-6 group bg-black text-white dark:bg-gray-800 dark:text-white"
-            >
+            <Button>
               Get Started
-              {/* Free Trial */}
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
             {/* <Button
