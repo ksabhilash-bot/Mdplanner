@@ -4,9 +4,57 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
 
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { signUp } from "@/api/auth";
+
 export function SignupForm({ className, ...props }) {
+  const navigate = useNavigate();
+
+  // 1. Local state for form fields
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  // 2. Handle form field changes
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // 3. Mutation hook for signup (powered by React Query)
+  const { mutate, isPending, isError, error } = useMutation({
+    mutationFn: signUp,
+    onSuccess: () => {
+      navigate("/userdashboard"); //redirect on success
+    },
+  });
+
+  // 4. Submit handler
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords does not match");
+      return;
+    }
+
+    mutate({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+    });
+  };
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      onSubmit={handleSubmit}
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Create your account</h1>
         <p className="text-muted-foreground text-sm text-balance">
@@ -17,19 +65,42 @@ export function SignupForm({ className, ...props }) {
       <div className="grid gap-4">
         <div className="grid gap-3">
           <Label htmlFor="name">Full Name</Label>
-          <Input id="name" type="text" placeholder="John Doe" required />
+          <Input
+            id="name"
+            type="text"
+            name="name"
+            placeholder="John Doe"
+            required
+            value={formData.name}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <Input
+            id="email"
+            type="email"
+            name="email"
+            placeholder="m@example.com"
+            required
+            value={formData.email}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
           </div>
-          <Input id="password" type="password" required />
+          <Input
+            id="password"
+            type="password"
+            name="password"
+            required
+            value={formData.password}
+            onChange={handleChange}
+          />
           <p className="text-muted-foreground text-xs">
             Password must be at least 8 characters
           </p>
@@ -37,11 +108,18 @@ export function SignupForm({ className, ...props }) {
 
         <div className="grid gap-3">
           <Label htmlFor="confirm-password">Confirm Password</Label>
-          <Input id="confirm-password" type="password" required />
+          <Input
+            id="confirm-password"
+            type="password"
+            name="confirmPassword"
+            required
+            value={formData.confirmPassword}
+            onChange={handleChange}
+          />
         </div>
 
-        <Button type="submit" className="w-full mt-2">
-          Create Account
+        <Button type="submit" className="w-full mt-2" disabled={isPending}>
+          {isPending ? "Creating..." : "Create Account"}
         </Button>
 
         <div className="relative my-2">
@@ -86,6 +164,9 @@ export function SignupForm({ className, ...props }) {
           </Button>
         </div>
       </div>
+
+      {/* Optional Error */}
+      {isError && <p className="text-red-500 text-sm">{error.message}</p>}
 
       <div className="text-center text-sm">
         Already have an account?{" "}

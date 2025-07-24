@@ -6,6 +6,7 @@ import LoginPage from "../login/page";
 import Navbar from "@/components/ui/navbar";
 import SignUpPage from "../login/signup";
 import { NavMenu } from "@/components/navmenu";
+import Userdashboard from "@/components/userdashboard"
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/dashboard" element={<Userdashboard />} />
       </Routes>
     </ThemeProvider>
   );

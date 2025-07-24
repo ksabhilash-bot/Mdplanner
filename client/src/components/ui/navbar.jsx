@@ -16,7 +16,7 @@ export default function Navbar() {
           <div className="flex items-center space-x-2">
             <Brain className="h-6 w-6 text-black dark:text-white" />
             <span className="text-xl font-bold text-black dark:text-white">
-              NutriAI
+              MdPlanner
             </span>
           </div>
 

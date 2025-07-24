@@ -4,9 +4,54 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
 
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { login } from "@/api/auth";
+
 export function LoginForm({ className, ...props }) {
+  const navigate = useNavigate();
+
+  // 1. Local state for form fields
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  // 2. Handle form field changes
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // 3. Mutation hook for signup (powered by React Query)
+  const { mutate, isPending, isError, error } = useMutation({
+    mutationFn: login,
+    onSuccess: () => {
+      navigate("/userdashboard"); //redirect on success
+    },
+  });
+
+  // 4. Submit handler
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords does not match");
+      return;
+    }
+
+    mutate({
+      email: formData.email,
+      password: formData.password,
+    });
+  };
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      onSubmit={handleSubmit}
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Login to your account</h1>
         <p className="text-muted-foreground text-sm text-balance">
@@ -15,7 +60,15 @@ export function LoginForm({ className, ...props }) {
       </div>
       <div className="grid gap-3">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" type="email" placeholder="m@example.com" required />
+        <Input
+          id="email"
+          type="email"
+          name="email"
+          value={formData.name}
+          onChange={handleChange}
+          placeholder="m@example.com"
+          required
+        />
       </div>
       <div className="grid gap-3">
         <div className="flex items-center">
@@ -27,12 +80,20 @@ export function LoginForm({ className, ...props }) {
             Forgot your password?
           </a>
         </div>
-        <Input id="password" type="password" required />
+        <Input
+          id="password"
+          type="password"
+          name="password"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
       </div>
 
       {/* Login button */}
-      <Button type="submit" className="w-full">
-        Login
+      <Button type="submit" className="w-full" disabled={isPending}>
+        {isPending ? "Logging in..." : "Login"}
+        
       </Button>
 
       {/* Divider */}
@@ -76,6 +137,9 @@ export function LoginForm({ className, ...props }) {
           <span>Google</span>
         </Button>
       </div>
+      {/* Optional Error */}
+      {isError && <p className="text-red-500 text-sm">{error.message}</p>}
+
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
         <Link to="/signup" className="underline underline-offset-4">

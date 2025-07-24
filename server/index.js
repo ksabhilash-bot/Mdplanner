@@ -9,11 +9,23 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // your frontend dev origin
+    credentials: true, // only if you're using cookies
+  })
+);
+
 app.use(express.json());
 
 // Example route
 app.get("/", (req, res) => res.json({ message: "Hello from backend!" }));
+
+// Import routes
+import authRoutes from "./routes/authRoutes.js";
+
+// Use routes
+app.use("/auth", authRoutes);
 
 const startServer = async () => {
   try {
@@ -30,19 +42,19 @@ const startServer = async () => {
   }
 };
 
-const addMeal = async () => {
-  try {
-    const meal = new Meal({
-      name: "Sample Meal",
-      calories: 500,
-      type: "Lunch",
-    });
-    await meal.save();
-    console.log("Meal added:", meal);
-  } catch (error) {
-    console.error("Error adding meal:", error);
-  }
-};
+// const addMeal = async () => {
+//   try {
+//     const meal = new Meal({
+//       name: "Sample Meal",
+//       calories: 500,
+//       type: "Lunch",
+//     });
+//     await meal.save();
+//     console.log("Meal added:", meal);
+//   } catch (error) {
+//     console.error("Error adding meal:", error);
+//   }
+// };
 
 await startServer();
 // addMeal(); // Call the function to add a meal
