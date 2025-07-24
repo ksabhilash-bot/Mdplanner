@@ -1,7 +1,6 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import signupSchema from "../validators/authSchema.js";
 import generateToken from "../utils/generateToken.js";
 
 export const signUp = async (req, res) => {
@@ -9,7 +8,7 @@ export const signUp = async (req, res) => {
     console.log(req.body);
     const saltRounds = 10;
 
-    const { name, email, password } = signupSchema.parse(req.body);
+    const { name, email, password } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {

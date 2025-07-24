@@ -35,11 +35,6 @@ export function LoginForm({ className, ...props }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords does not match");
-      return;
-    }
-
     mutate({
       email: formData.email,
       password: formData.password,
@@ -64,7 +59,7 @@ export function LoginForm({ className, ...props }) {
           id="email"
           type="email"
           name="email"
-          value={formData.name}
+          value={formData.email}
           onChange={handleChange}
           placeholder="m@example.com"
           required
@@ -84,7 +79,7 @@ export function LoginForm({ className, ...props }) {
           id="password"
           type="password"
           name="password"
-          value={formData.name}
+          value={formData.password}
           onChange={handleChange}
           required
         />
@@ -93,7 +88,6 @@ export function LoginForm({ className, ...props }) {
       {/* Login button */}
       <Button type="submit" className="w-full" disabled={isPending}>
         {isPending ? "Logging in..." : "Login"}
-        
       </Button>
 
       {/* Divider */}

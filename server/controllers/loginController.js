@@ -1,23 +1,21 @@
-import User from "../models/User";
+import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { z } from "zod";
-
-const loginSchmea = z.object({
-  email: z.string().email(),
-  password: z.string().min(4),
-});
+import generateToken from "../utils/generateToken.js";
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = loginSchmea.parse(req.body);
+    console.log("hello");
+    const { email, password } = req.body;
 
-    const user = User.findOne({ email });
+    const user = await User.findOne({ email });
+    console.log(user);
     if (!user) {
       return res.status(400).json({ error: "User not found" });
     }
 
     const matchedPassword = await bcrypt.compare(password, user.password);
+    console.log(matchedPassword);
     if (!matchedPassword) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
