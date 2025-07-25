@@ -1,5 +1,5 @@
 import { GalleryVerticalEnd } from "lucide-react";
-import { SignupForm } from "@/components/signup-form";
+import { LoginForm } from "@/features/auth/LoginForm";
 import img1 from "@/assets/images/img1.avif";
 
 export default function LoginPage() {
@@ -16,7 +16,7 @@ export default function LoginPage() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <SignupForm />
+            <LoginForm />
           </div>
         </div>
       </div>

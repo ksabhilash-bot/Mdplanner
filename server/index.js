@@ -1,31 +1,10 @@
-import express from "express";
 import dotenv from "dotenv";
-import cors from "cors";
-import connectToDb from "./config/connection.js";
-import Meal from "./models/Meal.js"; // Assuming you have a Meal model defined
+import app from "./src/app.js";
+import connectToDb from "./src/config/db.js";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
-
-const app = express();
-app.use(
-  cors({
-    origin: "http://localhost:5173", // your frontend dev origin
-    credentials: true, // only if you're using cookies
-  })
-);
-
-app.use(express.json());
-
-// Example route
-app.get("/", (req, res) => res.json({ message: "Hello from backend!" }));
-
-// Import routes
-import authRoutes from "./routes/authRoutes.js";
-
-// Use routes
-app.use("/auth", authRoutes);
 
 const startServer = async () => {
   try {
@@ -34,27 +13,12 @@ const startServer = async () => {
 
     // Start server
     app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:5000`);
+      console.log(`Server is running at http://localhost:${PORT}`);
     });
-  } catch (error) {
-    console.error("Failed to connect to DB, exiting...", error);
+  } catch (err) {
+    console.error("Error starting server:", err);
     process.exit(1);
   }
 };
 
-// const addMeal = async () => {
-//   try {
-//     const meal = new Meal({
-//       name: "Sample Meal",
-//       calories: 500,
-//       type: "Lunch",
-//     });
-//     await meal.save();
-//     console.log("Meal added:", meal);
-//   } catch (error) {
-//     console.error("Error adding meal:", error);
-//   }
-// };
-
-await startServer();
-// addMeal(); // Call the function to add a meal
+startServer();

@@ -7,10 +7,13 @@ import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { login } from "@/api/auth";
+import { login } from "@/features/auth/auth.api";
 
 export function LoginForm({ className, ...props }) {
   const navigate = useNavigate();
+
+  // Local state for handling error
+  const [serverError, setServerError] = useState("");
 
   // 1. Local state for form fields
   const [formData, setFormData] = useState({
@@ -24,10 +27,30 @@ export function LoginForm({ className, ...props }) {
   };
 
   // 3. Mutation hook for signup (powered by React Query)
-  const { mutate, isPending, isError, error } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: login,
-    onSuccess: () => {
-      navigate("/userdashboard"); //redirect on success
+    onSuccess: (data) => {
+      console.log("✅ Login Success:", data);
+      const role = data?.user?.role;
+      if (role == "admin") {
+        navigate("/admindashboard");
+      } else {
+        navigate("/userdashboard"); //redirect on success
+      }
+    },
+    onError: (err) => {
+      const msg = err?.response?.data?.message || "Login failed";
+      const errors = err?.response?.data?.errors;
+
+      if (errors) {
+        console.log(errors);
+        const firstError = Object.values(errors)[0]; // Show the first Zod error
+        setServerError(firstError);
+      } else if (msg) {
+        setServerError(msg);
+      } else {
+        setServerError("Login failed");
+      }
     },
   });
 
@@ -132,7 +155,7 @@ export function LoginForm({ className, ...props }) {
         </Button>
       </div>
       {/* Optional Error */}
-      {isError && <p className="text-red-500 text-sm">{error.message}</p>}
+      {serverError && <p className="text-red-500 text-sm">{serverError}</p>}
 
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}

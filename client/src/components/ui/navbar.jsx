@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Brain, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/mode-toggle";
+import { ModeToggle } from "@/components/common/ModeToggle";
 import { Link } from "react-router-dom";
 
 export default function Navbar() {

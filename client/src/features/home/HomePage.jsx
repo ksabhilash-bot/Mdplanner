@@ -24,7 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ModeToggle } from "@/components/mode-toggle";
+import { ModeToggle } from "@/components/common/ModeToggle";
 import { Link } from "react-router-dom";
 // import Navbar from "@/components/ui/navbar"; // Import the new Navbar component
 import { useLocation } from "react-router-dom";

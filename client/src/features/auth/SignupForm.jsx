@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import { signUp } from "@/api/auth";
+import { signUp } from "@/features/auth/auth.api";
 
 export function SignupForm({ className, ...props }) {
   const navigate = useNavigate();
