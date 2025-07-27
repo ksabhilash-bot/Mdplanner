@@ -39,6 +39,6 @@ export const login = async (req, res) => {
       user,
     });
   } catch (err) {
-    res.status(400).json("error", err.message);
+    res.status(400).json({ error: err.message });
   }
 };

@@ -6,20 +6,30 @@ import SignupPage from "@/features/auth/SignupPage";
 import HomePage from "@/features/home/HomePage";
 
 // Protected Pages
-import UserDashboard from "@/features/dashboard/UserDashboard";
-import AdminDashboard from "@/features/dashboard/AdminDashboard";
+import UserDashboard from "@/features/user/UserDashboard";
+import AdminDashboard from "@/features/admin/AdminDashboard";
+
+import UserLayout from "@/layouts/UserLayout";
+import MainLayout from "@/layouts/MainLayout";
+import AdminLayout from "@/layouts/AdminLayout";
 
 export default function AppRouter() {
   return (
     <Routes>
       {/* Public routes */}
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+      </Route>
+      {/* User routes */}
+      <Route element={<UserLayout />}>
+        <Route path="/userdashboard" element={<UserDashboard />} />
+      </Route>
 
-      {/* Protected routes (optional layout) */}
-      <Route path="/userdashboard" element={<UserDashboard />} />
-      <Route path="/admindashboard" element={<AdminDashboard />} />
+      <Route element={<AdminLayout />}>
+        <Route path="/admindashboard" element={<AdminDashboard />} />
+      </Route>
     </Routes>
   );
 }

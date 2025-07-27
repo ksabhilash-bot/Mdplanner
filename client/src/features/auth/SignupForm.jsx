@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
 
@@ -101,9 +101,9 @@ export function SignupForm({ className, ...props }) {
             value={formData.password}
             onChange={handleChange}
           />
-          <p className="text-muted-foreground text-xs">
+          {/* <p className="text-muted-foreground text-xs">
             Password must be at least 8 characters
-          </p>
+          </p> */}
         </div>
 
         <div className="grid gap-3">
@@ -123,19 +123,19 @@ export function SignupForm({ className, ...props }) {
         </Button>
 
         <div className="relative my-2">
-          <div className="absolute inset-0 flex items-center">
+          {/* <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border"></span>
-          </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="px-2 text-muted-foreground">
+          </div> */}
+          {/* <div className="relative flex justify-center text-xs">
+            <span className="px-2 text-muted-foreground"> */}
               {" "}
               {/* Removed bg-background */}
-              Or continue with
+              {/* Or continue with
             </span>
-          </div>
+          </div> */}
         </div>
 
-        <div className="grid gap-2">
+        {/* <div className="grid gap-2">
           <Button variant="outline" className="w-full gap-2">
             <svg
               className="h-4 w-4"
@@ -162,7 +162,7 @@ export function SignupForm({ className, ...props }) {
             </svg>
             <span>Sign up with Google</span>
           </Button>
-        </div>
+        </div> */}
       </div>
 
       {/* Optional Error */}

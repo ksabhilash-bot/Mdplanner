@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
 
@@ -39,17 +39,22 @@ export function LoginForm({ className, ...props }) {
       }
     },
     onError: (err) => {
-      const msg = err?.response?.data?.message || "Login failed";
-      const errors = err?.response?.data?.errors;
+      const msg = err?.response?.data?.error || "Login failed";
+      // const errors = err?.response?.data?.errors;
 
-      if (errors) {
-        console.log(errors);
-        const firstError = Object.values(errors)[0]; // Show the first Zod error
-        setServerError(firstError);
-      } else if (msg) {
-        setServerError(msg);
+      // if (errors) {
+      //   console.log(errors);
+      //   const firstError = Object.values(errors)[0]; // Show the first Zod error
+      //   setServerError(firstError);
+      // } else if (msg) {
+      //   setServerError(msg);
+      // } else {
+      //   setServerError("Login failed");
+      // }
+      if (msg) {
+          setServerError(msg);
       } else {
-        setServerError("Login failed");
+         setServerError("Login failed");
       }
     },
   });
@@ -91,12 +96,12 @@ export function LoginForm({ className, ...props }) {
       <div className="grid gap-3">
         <div className="flex items-center">
           <Label htmlFor="password">Password</Label>
-          <a
+          {/* <a
             href="#"
             className="ml-auto text-sm underline-offset-4 hover:underline"
           >
             Forgot your password?
-          </a>
+          </a> */}
         </div>
         <Input
           id="password"
@@ -114,7 +119,7 @@ export function LoginForm({ className, ...props }) {
       </Button>
 
       {/* Divider */}
-      <div className="relative my-2">
+      {/* <div className="relative my-2">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t border-border"></span>
         </div>
@@ -123,10 +128,10 @@ export function LoginForm({ className, ...props }) {
             Or continue with
           </span>
         </div>
-      </div>
+      </div> */}
 
       {/* Social login buttons with reduced gap */}
-      <div className="grid gap-2.5">
+      {/* <div className="grid gap-2.5">
         <Button variant="outline" className="w-full gap-2">
           <svg
             className="h-4 w-4"
@@ -153,7 +158,7 @@ export function LoginForm({ className, ...props }) {
           </svg>
           <span>Google</span>
         </Button>
-      </div>
+      </div> */}
       {/* Optional Error */}
       {serverError && <p className="text-red-500 text-sm">{serverError}</p>}
 
