@@ -6,7 +6,6 @@ import { ModeToggle } from "@/components/common/ModeToggle";
 import { Link } from "react-router-dom";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { SearchForm } from "@/components/user/search-form";
 
 export function SiteHeader() {
   const { toggleSidebar } = useSidebar();
@@ -15,30 +14,27 @@ export function SiteHeader() {
   return (
     <header className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-50 w-full">
       <div className="flex h-16 items-center px-4">
-        {/* Sidebar Toggle and Logo */}
-        <div className="flex items-center gap-4">
+        {/* Compact logo section with perfectly balanced spacing */}
+        <div className="flex items-center">
           <Button
-            className="h-8 w-8"
+            className="h-8 w-8 p-0 mr-1.5"  // 0.375rem right margin
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
           >
             <SidebarIcon className="h-4 w-4" />
           </Button>
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <div className="flex items-center space-x-2">
-            <Brain className="h-6 w-6 text-black dark:text-white" />
-            <span className="text-xl font-bold text-black dark:text-white">
+          
+          {/* Subtle gray vertical divider */}
+          <div className="h-5 w-[0.5px] bg-gray-300 mx-1.5"></div>  
+          
+          <div className="flex items-center ml-1.5">  
+            <Brain className="h-5 w-5 text-black dark:text-white" />
+            <span className="ml-2 text-lg font-bold text-black dark:text-white">
               MdPlanner
             </span>
           </div>
         </div>
-
-        {/* Search and Navigation */}
-        <div className="flex flex-1 items-center justify-center px-4">
-          <SearchForm className="w-full max-w-md" />
-        </div>
-
         {/* Right Side Controls */}
         <div className="flex items-center gap-2 ml-auto">
           <nav className="hidden md:flex items-center gap-2">

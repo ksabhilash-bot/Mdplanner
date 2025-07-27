@@ -13,9 +13,15 @@ export default function Navbar() {
       <div className="w-full px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          {/* <div className="flex items-center space-x-2">
             <Brain className="h-6 w-6 text-black dark:text-white" />
             <span className="text-xl font-bold text-black dark:text-white">
+              MdPlanner
+            </span>
+          </div> */}
+          <div className="flex items-center ml-1.5">  
+            <Brain className="h-5 w-5 text-black dark:text-white" />
+            <span className="ml-2 text-lg font-bold text-black dark:text-white">
               MdPlanner
             </span>
           </div>

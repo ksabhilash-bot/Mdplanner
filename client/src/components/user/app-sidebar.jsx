@@ -97,14 +97,14 @@ export function AppSidebar({ ...props }) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              {/* <a href="#">
                 <div className="bg-black dark:bg-white flex aspect-square size-8 items-center justify-center rounded-lg">
                   <Home className="size-4 text-white dark:text-black" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium text-gray-900 dark:text-white">Health Tracker</span>
                 </div>
-              </a>
+              </a> */}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
