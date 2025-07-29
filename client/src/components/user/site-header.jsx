@@ -16,24 +16,22 @@ export function SiteHeader() {
       <div className="flex h-16 items-center px-4">
         {/* Compact logo section with perfectly balanced spacing */}
         <div className="flex items-center">
+          <div className="flex items-center ml-1.5">
+            <Brain className="h-5 w-5 text-black dark:text-white" />
+            <span className="ml-2 mr-2 text-lg font-bold text-black dark:text-white">
+              MdPlanner
+            </span>
+          </div>
+          {/* Subtle gray vertical divider */}
+          <div className="h-5 w-[0.5px] bg-gray-300 mx-1.5"></div>
           <Button
-            className="h-8 w-8 p-0 mr-1.5"  // 0.375rem right margin
+            className="h-8 w-8 p-0 mr-1.5" // 0.375rem right margin
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
           >
             <SidebarIcon className="h-4 w-4" />
           </Button>
-          
-          {/* Subtle gray vertical divider */}
-          <div className="h-5 w-[0.5px] bg-gray-300 mx-1.5"></div>  
-          
-          <div className="flex items-center ml-1.5">  
-            <Brain className="h-5 w-5 text-black dark:text-white" />
-            <span className="ml-2 text-lg font-bold text-black dark:text-white">
-              MdPlanner
-            </span>
-          </div>
         </div>
         {/* Right Side Controls */}
         <div className="flex items-center gap-2 ml-auto">

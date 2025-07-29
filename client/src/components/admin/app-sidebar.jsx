@@ -1,23 +1,15 @@
 import * as React from "react";
 import {
-  IconCamera,
   IconChartBar,
   IconDashboard,
-  IconDatabase,
-  IconFileAi,
-  IconFileDescription,
-  IconFileWord,
-  IconFolder,
-  IconHelp,
-  IconInnerShadowTop,
-  IconListDetails,
-  IconReport,
-  IconSearch,
-  IconSettings,
   IconUsers,
+  IconDatabase,
+  IconNotification,
+  IconReport,
+  IconSettings,
+  IconHelp,
+  IconSearch,
 } from "@tabler/icons-react";
-
-import { NavDocuments } from "@/components/admin/nav-documents";
 import { NavMain } from "@/components/admin/nav-main";
 import { NavSecondary } from "@/components/admin/nav-secondary";
 import { NavUser } from "@/components/admin/nav-user";
@@ -30,120 +22,62 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Brain } from "lucide-react";
+import { Shield, Lock, LayoutDashboard } from "lucide-react";
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: "Admin User",
+    email: "admin@mdplanner.com",
+    avatar: "/avatars/admin.jpg",
   },
   navMain: [
     {
-      title: "Dashboard",
-      url: "#",
+      title: "Overview",
+      url: "/admin/overview",
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
+      title: "User Management",
+      url: "/admin/users",
+      icon: IconUsers,
+    },
+    {
+      title: "Meal Database",
+      url: "/admin/meals",
+      icon: IconDatabase,
     },
     {
       title: "Analytics",
-      url: "#",
+      url: "/admin/analytics",
       icon: IconChartBar,
     },
     {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
+      title: "Notifications",
+      url: "/admin/notifications",
+      icon: IconNotification,
     },
     {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      title: "Reports",
+      url: "/admin/reports",
+      icon: IconReport,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/admin/settings",
       icon: IconSettings,
     },
     {
       title: "Get Help",
-      url: "#",
+      url: "/admin/help",
       icon: IconHelp,
     },
     {
       title: "Search",
-      url: "#",
+      url: "/admin/search",
       icon: IconSearch,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
     },
   ],
 };
@@ -158,9 +92,18 @@ export function AppSidebar({ ...props }) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+              {/* <a href="/admin" className="flex items-center gap-1.5">
+                <Brain className="h-5 w-5 text-primary" />
+                <span className="text-lg font-semibold text-primary">
+                  MdPlanner
+                </span>
+              </a> */}
+              <a href="/admin" className="flex items-center gap-2 px-1">
+                <Shield className="h-5 w-5 text-primary" />{" "}
+                {/* Shield icon for admin */}
+                <span className="text-lg font-semibold text-primary">
+                  MdPlanner Admin
+                </span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -168,7 +111,6 @@ export function AppSidebar({ ...props }) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
