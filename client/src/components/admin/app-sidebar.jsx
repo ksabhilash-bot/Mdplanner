@@ -62,24 +62,29 @@ const data = {
       url: "/admin/reports",
       icon: IconReport,
     },
-  ],
-  navSecondary: [
-    {
+     {
       title: "Settings",
       url: "/admin/settings",
       icon: IconSettings,
     },
-    {
-      title: "Get Help",
-      url: "/admin/help",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "/admin/search",
-      icon: IconSearch,
-    },
   ],
+  // navSecondary: [
+  //   {
+  //     title: "Settings",
+  //     url: "/admin/settings",
+  //     icon: IconSettings,
+  //   },
+    // {
+    //   title: "Get Help",
+    //   url: "/admin/help",
+    //   icon: IconHelp,
+    // },
+    // {
+    //   title: "Search",
+    //   url: "/admin/search",
+    //   icon: IconSearch,
+    // },
+  // ],
 };
 
 export function AppSidebar({ ...props }) {
@@ -111,7 +116,7 @@ export function AppSidebar({ ...props }) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

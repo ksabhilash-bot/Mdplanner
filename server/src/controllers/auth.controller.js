@@ -1,3 +1,4 @@
+import { jwt } from "jsonwebtoken";
 import { signUpService, loginService } from "../services/auth.service.js";
 
 import loginSchema from "../validators/signup.schema.js";
@@ -41,4 +42,27 @@ export const login = async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
+};
+
+export const check = async (req, res) => {
+  const token = req.cookies.token;
+  if (!token) {
+    res.status(400).json({ message: "Not logged in" });
+  }
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return res.status(200).json({ user });
+  } catch (err) {
+    res.status(401).json({ error: "Invalid or expired token" });
+  }
+};
+
+export const logout = async (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+  });
+
+  res.status(200).json({ message: "Logged out successfully" });
 };

@@ -4,9 +4,11 @@ import { Brain, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ModeToggle } from "@/components/common/ModeToggle";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "@/features/auth/auth.store";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuthStore();
 
   return (
     <nav className="border-b border-border bg-background/95 backdrop-blur-sm fixed w-full z-50">
@@ -19,7 +21,7 @@ export default function Navbar() {
               MdPlanner
             </span>
           </div> */}
-          <div className="flex items-center ml-1.5">  
+          <div className="flex items-center ml-1.5">
             <Brain className="h-5 w-5 text-black dark:text-white" />
             <span className="ml-2 text-lg font-bold text-black dark:text-white">
               MdPlanner
@@ -46,12 +48,33 @@ export default function Navbar() {
             >
               How It Works
             </Link>
-            <Link
-              to="/login"
-              className="px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
-            >
-              Sign In
-            </Link>
+
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to={
+                    user.role === "admin" ? "/admindashboard" : "/userdashboard"
+                  }
+                  className="px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to="/logout"
+                  onClick={logout}
+                  className="px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
+                >
+                  Sign Out
+                </Link>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
+              >
+                Sign In
+              </Link>
+            )}
             <div className="hover:bg-gray-200 dark:hover:bg-muted/100 rounded-md transition-colors duration-200">
               <ModeToggle />
             </div>

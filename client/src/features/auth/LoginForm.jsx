@@ -9,8 +9,11 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { login } from "@/features/auth/auth.api";
 
+import { useAuthStore } from "./auth.store";
+
 export function LoginForm({ className, ...props }) {
   const navigate = useNavigate();
+  const { setUser } = useAuthStore();
 
   // Local state for handling error
   const [serverError, setServerError] = useState("");
@@ -31,6 +34,7 @@ export function LoginForm({ className, ...props }) {
     mutationFn: login,
     onSuccess: (data) => {
       console.log("✅ Login Success:", data);
+      setUser(data.user); // Update global auth state
       const role = data?.user?.role;
       if (role == "admin") {
         navigate("/admindashboard");
@@ -52,9 +56,9 @@ export function LoginForm({ className, ...props }) {
       //   setServerError("Login failed");
       // }
       if (msg) {
-          setServerError(msg);
+        setServerError(msg);
       } else {
-         setServerError("Login failed");
+        setServerError("Login failed");
       }
     },
   });
