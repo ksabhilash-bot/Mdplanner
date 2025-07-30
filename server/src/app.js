@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 // Import routes
 import authRoutes from "../src/routes/auth.routes.js";
@@ -13,6 +14,7 @@ app.use(
   })
 );
 
+app.use(cookieParser());
 app.use(express.json());
 
 // Example route

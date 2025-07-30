@@ -1,4 +1,4 @@
-import { jwt } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { signUpService, loginService } from "../services/auth.service.js";
 
 import loginSchema from "../validators/signup.schema.js";
@@ -27,6 +27,7 @@ export const signUp = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { token, user } = await loginService(req.body);
+    console.log("token to be set in cookie:", token);
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -34,6 +35,7 @@ export const login = async (req, res) => {
       sameSite: "Strict", // prevents CSRF
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
+    console.log("token to be set in cookie:", token);
 
     res.status(200).json({
       message: "Login successful",
@@ -45,9 +47,12 @@ export const login = async (req, res) => {
 };
 
 export const check = async (req, res) => {
+  console.log("you are on auth check");
   const token = req.cookies.token;
+  console.log("🔐 Token from cookie:", token); // 🔍 debug log
+
   if (!token) {
-    res.status(400).json({ message: "Not logged in" });
+    return res.status(400).json({ message: "Not logged in" });
   }
   try {
     const user = jwt.verify(token, process.env.JWT_SECRET);
@@ -58,6 +63,7 @@ export const check = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
+  console.log("logout router");
   res.clearCookie("token", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

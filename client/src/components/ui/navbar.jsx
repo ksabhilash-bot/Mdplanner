@@ -1,14 +1,33 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Brain, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ModeToggle } from "@/components/common/ModeToggle";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/auth.store";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { user, isAuthenticated, loading, checkAuth, setUser, logout } =
+    useAuthStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    checkAuth();
+
+    const { isAuthenticated, user } = useAuthStore.getState();
+
+    if (!isAuthenticated) {
+      console.log("🔒 User is not logged in");
+    } else {
+      console.log("✅ User is logged in:", user);
+    }
+  }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/"); // or window.location.reload()
+  };
 
   return (
     <nav className="border-b border-border bg-background/95 backdrop-blur-sm fixed w-full z-50">
@@ -57,11 +76,11 @@ export default function Navbar() {
                   }
                   className="px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
                 >
-                  Dashboard
+                  {user.role === "admin" ? "Admin Dashboard" : "User Dashboard"}
                 </Link>
                 <Link
                   to="/logout"
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
                 >
                   Sign Out

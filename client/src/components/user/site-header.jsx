@@ -1,15 +1,36 @@
 "use client";
 import { Brain, Menu, X, SidebarIcon } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/common/ModeToggle";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { useAuthStore } from "@/features/auth/auth.store";
 
 export function SiteHeader() {
   const { toggleSidebar } = useSidebar();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAuthenticated, loading, checkAuth, setUser, logout } =
+    useAuthStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    checkAuth();
+
+    const { isAuthenticated, user } = useAuthStore.getState();
+
+    if (!isAuthenticated) {
+      console.log("🔒 User is not logged in");
+    } else {
+      console.log("✅ User is logged in:", user);
+    }
+  }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/"); // or window.location.reload()
+  };
 
   return (
     <header className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-50 w-full">
@@ -34,14 +55,33 @@ export function SiteHeader() {
           </Button>
         </div>
         {/* Right Side Controls */}
+
         <div className="flex items-center gap-2 ml-auto">
           <nav className="hidden md:flex items-center gap-2">
-            <Link
-              to="/"
-              className="px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
-            >
-              Home
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/"
+                  className="px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
+                >
+                  Home
+                </Link>
+                <Link
+                  to="/logout"
+                  onClick={handleLogout}
+                  className="px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
+                >
+                  Sign Out
+                </Link>
+              </>
+            ) : (
+              <Link
+                to="/"
+                className="px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
+              >
+                Home
+              </Link>
+            )}
           </nav>
 
           <div className="hover:bg-gray-200 dark:hover:bg-muted/100 rounded-md transition-colors duration-200">
