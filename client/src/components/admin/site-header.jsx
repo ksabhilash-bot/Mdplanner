@@ -12,16 +12,19 @@ export function SiteHeader() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkAuth();
+    const runCheck = async () => {
+      await checkAuth();
+    };
+    runCheck();
 
-    const { isAuthenticated, user } = useAuthStore.getState();
-
-    if (!isAuthenticated) {
-      console.log("🔒 User is not logged in");
-    } else {
-      console.log("✅ User is logged in:", user);
-    }
+    // const { isAuthenticated, user } = useAuthStore.getState();
   }, []);
+
+  if (!isAuthenticated) {
+    console.log("🔒 User is not logged in");
+  } else {
+    console.log("✅ User is logged in:", user);
+  }
 
   const handleLogout = async () => {
     await logout();
@@ -48,8 +51,6 @@ export function SiteHeader() {
               >
                 <Link
                   to="/"
-                  rel="noopener noreferrer"
-                  target="_blank"
                   className="dark:text-foreground"
                 >
                   Home
@@ -62,10 +63,8 @@ export function SiteHeader() {
                 className="hidden sm:flex"
               >
                 <Link
-                //  to="/logout"
+                  //  to="/logout"
                   onClick={handleLogout}
-                  rel="noopener noreferrer"
-                  target="_blank"
                   className="dark:text-foreground"
                 >
                   Sign Out
@@ -81,8 +80,6 @@ export function SiteHeader() {
             >
               <Link
                 to="/"
-                rel="noopener noreferrer"
-                target="_blank"
                 className="dark:text-foreground"
               >
                 Home
@@ -96,8 +93,6 @@ export function SiteHeader() {
           {/* <Button variant="ghost" asChild size="sm" className="hidden sm:flex">
             <Link
               href="https://github.com/shadcn-ui/ui/tree/main/apps/v4/app/(examples)/dashboard"
-              rel="noopener noreferrer"
-              target="_blank"
               className="dark:text-foreground"
             >
               Linkedin

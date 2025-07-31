@@ -13,16 +13,21 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkAuth();
+    const runCheck = async () => {
+      await checkAuth();
+    };
+    runCheck();
 
-    const { isAuthenticated, user } = useAuthStore.getState();
+    // const { isAuthenticated, user } = useAuthStore.getState();
 
-    if (!isAuthenticated) {
+   
+  }, []);
+
+   if (!isAuthenticated) {
       console.log("🔒 User is not logged in");
     } else {
       console.log("✅ User is logged in:", user);
     }
-  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -76,7 +81,7 @@ export default function Navbar() {
                   }
                   className="px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
                 >
-                  {user.role === "admin" ? "Admin Dashboard" : "User Dashboard"}
+                  {user.role === "admin" ? "AdminDB" : "UserDB"}
                 </Link>
                 <Link
                   to="/logout"
