@@ -13,7 +13,11 @@ export const useAuthStore = create((set) => ({
         withCredentials: true,
       });
       set({ user: res.data.user, isAuthenticated: true, loading: false });
-    } catch {
+    } catch (err) {
+      console.warn(
+        "🔒 User not authenticated yet: ",
+        err.response?.data?.message || err.message
+      );
       set({ user: null, isAuthenticated: false, loading: false });
     }
   },
