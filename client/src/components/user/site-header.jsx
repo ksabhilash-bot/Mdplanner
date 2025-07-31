@@ -11,21 +11,25 @@ import { useAuthStore } from "@/features/auth/auth.store";
 export function SiteHeader() {
   const { toggleSidebar } = useSidebar();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, loading, checkAuth, setUser, logout } =
-    useAuthStore();
+  const { user, isAuthenticated, checkAuth, logout } = useAuthStore();
   const navigate = useNavigate();
 
+  // useEffect(() => {
+  //   const runCheck = async () => {
+  //     await checkAuth();
+  //   };
+  //   runCheck();
+
+  //   // const { isAuthenticated, user } = useAuthStore.getState();
+  // }, []);
+
   useEffect(() => {
-    checkAuth();
-
-    const { isAuthenticated, user } = useAuthStore.getState();
-
     if (!isAuthenticated) {
       console.log("🔒 User is not logged in");
     } else {
       console.log("✅ User is logged in:", user);
     }
-  }, []);
+  }, [isAuthenticated, user]);
 
   const handleLogout = async () => {
     await logout();

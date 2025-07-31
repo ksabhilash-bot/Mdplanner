@@ -8,26 +8,25 @@ import { useAuthStore } from "@/features/auth/auth.store";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, loading, checkAuth, setUser, logout } =
-    useAuthStore();
+  const { user, isAuthenticated, checkAuth, logout } = useAuthStore();
   const navigate = useNavigate();
 
+  // useEffect(() => {
+  //   const runCheck = async () => {
+  //     await checkAuth();
+  //   };
+  //   runCheck();
+
+  //   // const { isAuthenticated, user } = useAuthStore.getState();
+  // }, []);
+
   useEffect(() => {
-    const runCheck = async () => {
-      await checkAuth();
-    };
-    runCheck();
-
-    // const { isAuthenticated, user } = useAuthStore.getState();
-
-   
-  }, []);
-
-   if (!isAuthenticated) {
+    if (!isAuthenticated) {
       console.log("🔒 User is not logged in");
     } else {
       console.log("✅ User is logged in:", user);
     }
+  }, [isAuthenticated, user]);
 
   const handleLogout = async () => {
     await logout();

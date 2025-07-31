@@ -7,24 +7,26 @@ import { useState, useEffect } from "react";
 import { ModeToggle } from "@/components/common/ModeToggle";
 
 export function SiteHeader() {
-  const { user, isAuthenticated, loading, checkAuth, setUser, logout } =
+  const { user, isAuthenticated, checkAuth, logout } =
     useAuthStore();
   const navigate = useNavigate();
 
+  // useEffect(() => {
+  //   const runCheck = async () => {
+  //     await checkAuth();
+  //   };
+  //   runCheck();
+
+  //   // const { isAuthenticated, user } = useAuthStore.getState();
+  // }, []);
+
   useEffect(() => {
-    const runCheck = async () => {
-      await checkAuth();
-    };
-    runCheck();
-
-    // const { isAuthenticated, user } = useAuthStore.getState();
-  }, []);
-
-  if (!isAuthenticated) {
-    console.log("🔒 User is not logged in");
-  } else {
-    console.log("✅ User is logged in:", user);
-  }
+    if (!isAuthenticated) {
+      console.log("🔒 User is not logged in");
+    } else {
+      console.log("✅ User is logged in:", user);
+    }
+  }, [isAuthenticated, user]);
 
   const handleLogout = async () => {
     await logout();
@@ -49,10 +51,7 @@ export function SiteHeader() {
                 size="sm"
                 className="hidden sm:flex"
               >
-                <Link
-                  to="/"
-                  className="dark:text-foreground"
-                >
+                <Link to="/" className="dark:text-foreground">
                   Home
                 </Link>
               </Button>
@@ -78,10 +77,7 @@ export function SiteHeader() {
               size="sm"
               className="hidden sm:flex"
             >
-              <Link
-                to="/"
-                className="dark:text-foreground"
-              >
+              <Link to="/" className="dark:text-foreground">
                 Home
               </Link>
             </Button>
