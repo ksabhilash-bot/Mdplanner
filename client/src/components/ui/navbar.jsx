@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Brain, Menu, X } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Brain, Menu, X, ChevronDown, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ModeToggle } from "@/components/common/ModeToggle";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,29 +8,34 @@ import { useAuthStore } from "@/features/auth/auth.store";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, checkAuth, logout } = useAuthStore();
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuthStore();
   const navigate = useNavigate();
+  const dropdownRef = useRef(null);
 
-  // useEffect(() => {
-  //   const runCheck = async () => {
-  //     await checkAuth();
-  //   };
-  //   runCheck();
-
-  //   // const { isAuthenticated, user } = useAuthStore.getState();
-  // }, []);
-
+  // Close dropdown when clicking outside
   useEffect(() => {
-    if (!isAuthenticated) {
-      console.log("🔒 User is not logged in");
-    } else {
-      console.log("✅ User is logged in:", user);
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsUserDropdownOpen(false);
+      }
     }
-  }, [isAuthenticated, user]);
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = async () => {
     await logout();
-    navigate("/"); // or window.location.reload()
+    navigate("/");
+    setIsUserDropdownOpen(false);
+  };
+
+  const closeAllMenus = () => {
+    setIsMenuOpen(false);
+    setIsUserDropdownOpen(false);
   };
 
   return (
@@ -38,12 +43,6 @@ export default function Navbar() {
       <div className="w-full px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          {/* <div className="flex items-center space-x-2">
-            <Brain className="h-6 w-6 text-black dark:text-white" />
-            <span className="text-xl font-bold text-black dark:text-white">
-              MdPlanner
-            </span>
-          </div> */}
           <div className="flex items-center ml-1.5">
             <Brain className="h-5 w-5 text-black dark:text-white" />
             <span className="ml-2 text-lg font-bold text-black dark:text-white">
@@ -73,23 +72,38 @@ export default function Navbar() {
             </Link>
 
             {isAuthenticated ? (
-              <>
-                <Link
-                  to={
-                    user.role === "admin" ? "/admindashboard" : "/userdashboard"
-                  }
-                  className="px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
+              <div className="relative" ref={dropdownRef}>
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
+                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
                 >
-                  {user.role === "admin" ? "AdminDB" : "UserDB"}
-                </Link>
-                <Link
-                  to="/logout"
-                  onClick={handleLogout}
-                  className="px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-gray-200 dark:text-white dark:hover:text-white dark:hover:bg-muted/100 rounded-md transition-colors duration-200"
-                >
-                  Sign Out
-                </Link>
-              </>
+                  <span>{user.name || user.email}</span>
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+                
+                {isUserDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-background border border-border z-50">
+                    <div className="py-1">
+                      <Link
+                        to={user.role === "admin" ? "/admindashboard" : "/userdashboard"}
+                        className="flex items-center px-4 py-2 text-sm text-black dark:text-white hover:bg-gray-100 dark:hover:bg-muted/50"
+                        onClick={() => setIsUserDropdownOpen(false)}
+                      >
+                        <User className="h-4 w-4 mr-2" />
+                        {user.role === "admin" ? "Admin Dashboard" : "My Dashboard"}
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full text-left px-4 py-2 text-sm text-black dark:text-white hover:bg-gray-100 dark:hover:bg-muted/50"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <Link
                 to="/login"
@@ -129,26 +143,54 @@ export default function Navbar() {
         <div className="md:hidden border-t border-border bg-white dark:bg-background">
           <div className="px-3 py-2 space-y-1">
             <Link
+              to="/"
+              className="block px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
+              onClick={closeAllMenus}
+            >
+              Home
+            </Link>
+            <Link
               to="/#features"
               className="block px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
+              onClick={closeAllMenus}
             >
               Features
             </Link>
             <Link
               to="/#how-it-works"
               className="block px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
+              onClick={closeAllMenus}
             >
               How It Works
             </Link>
-            <Link
-              to="/login"
-              className="block px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Sign In
-            </Link>
+            
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to={user.role === "admin" ? "/admindashboard" : "/userdashboard"}
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
+                  onClick={closeAllMenus}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  {user.role === "admin" ? "Admin Dashboard" : "My Dashboard"}
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center w-full px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="block px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
+                onClick={closeAllMenus}
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       )}
