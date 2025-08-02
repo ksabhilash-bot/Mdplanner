@@ -29,7 +29,7 @@ export function SignupForm({ className, ...props }) {
   const { mutate, isPending, isError, error } = useMutation({
     mutationFn: signUp,
     onSuccess: () => {
-      navigate("/userdashboard"); //redirect on success
+      navigate("/userdashboard/profilesetup"); //redirect on success
     },
   });
 

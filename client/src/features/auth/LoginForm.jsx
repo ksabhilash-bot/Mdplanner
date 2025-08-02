@@ -39,7 +39,7 @@ export function LoginForm({ className, ...props }) {
       if (role == "admin") {
         navigate("/admindashboard");
       } else {
-        navigate("/userdashboard"); //redirect on success
+        navigate("/user/profilesetup"); //redirect on success
       }
     },
     onError: (err) => {

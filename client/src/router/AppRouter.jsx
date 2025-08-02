@@ -5,10 +5,18 @@ import LoginPage from "@/features/auth/LoginPage";
 import SignupPage from "@/features/auth/SignupPage";
 import HomePage from "@/features/home/HomePage";
 
-// Protected Pages
+// User Pages
 import UserDashboard from "@/features/user/UserDashboard";
+import Profile from "@/features/user/Profile";
+import MealPlan from "@/features/user/MealPlan";
+import TrackFood from "@/features/user/TrackFood";
+import Progress from "@/features/user/Progress";
+import Reports from "@/features/user/Reports";
+
+// Admin Pages
 import AdminDashboard from "@/features/admin/AdminDashboard";
 
+// Layouts
 import UserLayout from "@/layouts/UserLayout";
 import MainLayout from "@/layouts/MainLayout";
 import AdminLayout from "@/layouts/AdminLayout";
@@ -22,11 +30,18 @@ export default function AppRouter() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
       </Route>
+
       {/* User routes */}
       <Route element={<UserLayout />}>
-        <Route path="/userdashboard" element={<UserDashboard />} />
+        <Route path="/user/userdashboard" element={<UserDashboard />} />
+        <Route path="/user/profile" element={<Profile />} />
+        <Route path="/user/mealplan" element={<MealPlan />} />
+        <Route path="/user/trackfood" element={<TrackFood />} />
+        <Route path="/user/progress" element={<Progress />} />
+        <Route path="/user/reports" element={<Reports />} />
       </Route>
 
+      {/* Admin routes */}
       <Route element={<AdminLayout />}>
         <Route path="/admindashboard" element={<AdminDashboard />} />
       </Route>

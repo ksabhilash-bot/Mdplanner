@@ -86,18 +86,18 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-background border border-border z-50">
                     <div className="py-1">
                       <Link
-                        to={user.role === "admin" ? "/admindashboard" : "/userdashboard"}
+                        to={user.role === "admin" ? "/admindashboard" : "/user/userdashboard"}
                         className="flex items-center px-4 py-2 text-sm text-black dark:text-white hover:bg-gray-100 dark:hover:bg-muted/50"
                         onClick={() => setIsUserDropdownOpen(false)}
                       >
-                        <User className="h-4 w-4 mr-2" />
+                        {/* <User className="h-4 w-4 mr-2" /> */}
                         {user.role === "admin" ? "Admin Dashboard" : "My Dashboard"}
                       </Link>
                       <button
                         onClick={handleLogout}
                         className="flex items-center w-full text-left px-4 py-2 text-sm text-black dark:text-white hover:bg-gray-100 dark:hover:bg-muted/50"
                       >
-                        <LogOut className="h-4 w-4 mr-2" />
+                        {/* <LogOut className="h-4 w-4 mr-2" /> */}
                         Sign Out
                       </button>
                     </div>

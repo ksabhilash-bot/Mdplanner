@@ -34,55 +34,55 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/user/userdashboard",
       icon: Home,
       isActive: true,
     },
     {
-      title: "Profile Setup",
-      url: "#",
+      title: "Profile",
+      url: "/user/profile",
       icon: User,
     },
     {
       title: "Meal Plan",
-      url: "#",
+      url: "/user/mealplan",
       icon: Utensils,
     },
     {
       title: "Food Tracking",
-      url: "#",
+      url: "/user/trackfood",
       icon: Calendar,
     },
     {
       title: "Progress",
-      url: "#",
+      url: "/user/progress",
       icon: Activity,
     },
     {
       title: "Reports",
-      url: "#",
+      url: "/user/reports",
       icon: FileText,
     },
-    {
-      title: "Community",
-      url: "#",
-      icon: Users,
-    },
-    {
-      title: "Health Metrics",
-      url: "#",
-      icon: HeartPulse,
-    },
-    {
-      title: "Messages",
-      url: "#",
-      icon: MessageSquare,
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings,
-    },
+    // {
+    //   title: "Community",
+    //   url: "#",
+    //   icon: Users,
+    // },
+    // {
+    //   title: "Health Metrics",
+    //   url: "#",
+    //   icon: HeartPulse,
+    // },
+    // {
+    //   title: "Messages",
+    //   url: "#",
+    //   icon: MessageSquare,
+    // },
+    // {
+    //   title: "Settings",
+    //   url: "#",
+    //   icon: Settings,
+    // },
   ],
   navSecondary: [], // Empty since we're not using secondary nav items
 };
