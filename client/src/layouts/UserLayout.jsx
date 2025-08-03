@@ -3,20 +3,25 @@ import { SiteHeader } from "@/components/user/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import NavBar from "@/components/ui/navbar";
 
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/auth.store";
 import { useEffect } from "react";
+import { FullPageSpinner } from "@/components/full-page-spinner";
 
 export const iframeHeight = "800px";
 
 export const description = "A sidebar with a header and a search form.";
 
 export default function UserLayout() {
-  const { checkAuth } = useAuthStore();
+  const { isAuthenticated, loading } = useAuthStore();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  if (loading)
+    return (
+      <div>
+        <FullPageSpinner />
+      </div>
+    );
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
   return (
     <div className="[--header-height:calc(--spacing(14))]">
       <SidebarProvider className="flex flex-col">

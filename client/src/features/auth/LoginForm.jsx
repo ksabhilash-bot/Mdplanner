@@ -10,6 +10,7 @@ import { useState } from "react";
 import { login } from "@/features/auth/auth.api";
 
 import { useAuthStore } from "./auth.store";
+import { handlePostLoginRedirect } from "@/utils/auth.utils";
 
 export function LoginForm({ className, ...props }) {
   const navigate = useNavigate();
@@ -34,13 +35,9 @@ export function LoginForm({ className, ...props }) {
     mutationFn: login,
     onSuccess: (data) => {
       console.log("✅ Login Success:", data);
-      setUser(data.user); // Update global auth state
-      const role = data?.user?.role;
-      if (role == "admin") {
-        navigate("/admindashboard");
-      } else {
-        navigate("/user/profilesetup"); //redirect on success
-      }
+      const user = data?.user;
+      setUser(user); // Update global auth state
+      handlePostLoginRedirect(user, navigate);
     },
     onError: (err) => {
       const msg = err?.response?.data?.error || "Login failed";

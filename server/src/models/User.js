@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
   role: { type: String, default: "user" }, // for future admin features
+  isProfileComplete: { type: Boolean, default: false },
 });
 
 const User = mongoose.model("User", userSchema);

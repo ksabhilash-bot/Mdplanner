@@ -1,0 +1,385 @@
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { submitProfile } from "./profile.api";
+
+export default function ProfileSetup({ className, ...props }) {
+  const [formData, setFormData] = useState({
+    age: "",
+    height: "",
+    weight: "",
+    gender: "",
+    activityLevel: "",
+    dietPreference: "",
+    foodAllergies: [],
+    otherAllergies: "",
+    medicalConditions: [],
+    otherMedicalConditions: "",
+    mealFrequency: "",
+    planType: "",
+    duration: "",
+  });
+
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (name, value) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleMultiSelect = (name, value) => {
+    setFormData((prev) => {
+      const currentValues = prev[name];
+
+      if (value === "None") {
+        return { ...prev, [name]: ["None"] };
+      }
+
+      if (currentValues.includes("None")) {
+        return {
+          ...prev,
+          [name]: currentValues.filter((item) => item !== "None").concat(value),
+        };
+      }
+
+      return {
+        ...prev,
+        [name]: currentValues.includes(value)
+          ? currentValues.filter((item) => item !== value)
+          : [...currentValues, value],
+      };
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Form submitted:", formData);
+    navigate("/meal-plan");
+  };
+
+  return (
+    <div className="flex justify-center items-start min-h-screen py-8 px-4">
+      <form
+        onSubmit={handleSubmit}
+        className={cn(
+          "flex flex-col gap-6 w-full max-w-3xl bg-background p-6 rounded-lg border border-border shadow-sm",
+          className
+        )}
+        {...props}
+      >
+        <div className="flex flex-col items-center gap-2 text-center">
+          <h1 className="text-2xl font-bold">Personalize Your Meal Plan</h1>
+          <p className="text-muted-foreground text-sm text-balance">
+            Help us create the perfect meal plan tailored just for you
+          </p>
+        </div>
+
+        <div className="grid gap-6">
+          {/* Section 1: Basic Information */}
+          <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
+            <h2 className="text-xl font-semibold">Basic Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="age">Age</Label>
+                <Input
+                  id="age"
+                  type="number"
+                  name="age"
+                  placeholder="25"
+                  required
+                  value={formData.age}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="height">Height (cm)</Label>
+                <Input
+                  id="height"
+                  type="number"
+                  name="height"
+                  placeholder="170"
+                  required
+                  value={formData.height}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="weight">Weight (kg)</Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  name="weight"
+                  placeholder="70"
+                  required
+                  value={formData.weight}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-2">
+                <Label>Gender</Label>
+                <Select
+                  value={formData.gender}
+                  onValueChange={(value) => handleSelectChange("gender", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="prefer-not-to-say">
+                      Prefer not to say
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Dietary Preferences */}
+          <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
+            <h2 className="text-xl font-semibold">Dietary Preferences</h2>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Diet Preference (Select One)</Label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Vegetarian",
+                    "Vegan",
+                    "Non-Vegetarian",
+                    "Eggetarian",
+                    "Keto",
+                    "Paleo",
+                    "Mediterranean",
+                    "Low-Carb",
+                    "Gluten-Free",
+                    "Dairy-Free",
+                    "Pescatarian",
+                    "Flexitarian",
+                  ].map((diet) => (
+                    <Button
+                      key={diet}
+                      type="button"
+                      variant={
+                        formData.dietPreference === diet ? "default" : "outline"
+                      }
+                      onClick={() => handleSelectChange("dietPreference", diet)}
+                      className="h-8 px-3 text-xs"
+                    >
+                      {diet}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Food Allergies/Intolerances</Label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Nuts",
+                    "Dairy",
+                    "Eggs",
+                    "Gluten",
+                    "Shellfish",
+                    "Soy",
+                    "Fish",
+                    "Wheat",
+                    "Sesame",
+                    "None",
+                  ].map((allergy) => (
+                    <Button
+                      key={allergy}
+                      type="button"
+                      variant={
+                        formData.foodAllergies.includes(allergy)
+                          ? "default"
+                          : "outline"
+                      }
+                      onClick={() =>
+                        handleMultiSelect("foodAllergies", allergy)
+                      }
+                      className="h-8 px-3 text-xs"
+                    >
+                      {allergy}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="otherAllergies">Other Allergies</Label>
+                <Textarea
+                  id="otherAllergies"
+                  name="otherAllergies"
+                  placeholder="List any other allergies not mentioned above"
+                  value={formData.otherAllergies}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Health Information */}
+          <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
+            <h2 className="text-xl font-semibold">Health Information</h2>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Medical Conditions</Label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Diabetes",
+                    "Hypertension",
+                    "PCOS",
+                    "Thyroid Disorder",
+                    "Heart Disease",
+                    "Kidney Disease",
+                    "Autoimmune Disorder",
+                    "None",
+                  ].map((condition) => (
+                    <Button
+                      key={condition}
+                      type="button"
+                      variant={
+                        formData.medicalConditions.includes(condition)
+                          ? "default"
+                          : "outline"
+                      }
+                      onClick={() =>
+                        handleMultiSelect("medicalConditions", condition)
+                      }
+                      className="h-8 px-3 text-xs"
+                    >
+                      {condition}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="otherMedicalConditions">
+                  Other Medical Conditions
+                </Label>
+                <Textarea
+                  id="otherMedicalConditions"
+                  name="otherMedicalConditions"
+                  placeholder="List any other medical conditions not mentioned above"
+                  value={formData.otherMedicalConditions}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Meal Plan Preferences */}
+          <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
+            <h2 className="text-xl font-semibold">Meal Plan Preferences</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Preferred Meal Frequency</Label>
+                <Select
+                  value={formData.mealFrequency}
+                  onValueChange={(value) =>
+                    handleSelectChange("mealFrequency", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="How many meals per day?" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3">3 meals</SelectItem>
+                    <SelectItem value="4">4 meals</SelectItem>
+                    <SelectItem value="5">5 meals</SelectItem>
+                    <SelectItem value="6">6 small meals</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Plan Type</Label>
+                <Select
+                  value={formData.planType}
+                  onValueChange={(value) =>
+                    handleSelectChange("planType", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select plan type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="time-based">
+                      Time-Based (specific meal times)
+                    </SelectItem>
+                    <SelectItem value="flexible">
+                      Flexible (eat when you want)
+                    </SelectItem>
+                    <SelectItem value="intermittent-fasting">
+                      Intermittent Fasting
+                    </SelectItem>
+                    <SelectItem value="custom">Custom Schedule</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Plan Duration</Label>
+                <Select
+                  value={formData.duration}
+                  onValueChange={(value) =>
+                    handleSelectChange("duration", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select duration" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1-day">1 Day Trial</SelectItem>
+                    <SelectItem value="1-week">1 Week</SelectItem>
+                    <SelectItem value="2-weeks">2 Weeks</SelectItem>
+                    <SelectItem value="1-month">1 Month</SelectItem>
+                    <SelectItem value="3-months">3 Months</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full mt-2">
+            Generate My Personalized Meal Plan
+          </Button>
+        </div>
+
+        {/* <div className="text-center text-sm">
+          Want to adjust your preferences later?{" "}
+          <Link to="/profile" className="underline underline-offset-4">
+            Update in Profile
+          </Link>
+        </div> */}
+      </form>
+    </div>
+  );
+}

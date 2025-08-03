@@ -4,8 +4,10 @@ import { Routes, Route } from "react-router-dom";
 import LoginPage from "@/features/auth/LoginPage";
 import SignupPage from "@/features/auth/SignupPage";
 import HomePage from "@/features/home/HomePage";
+import ProtectedRoute from "@/features/auth/ProtectedRoute"; // create this if not yet
 
 // User Pages
+import ProfileSetup from "@/features/user/profile/ProfileSetup";
 import UserDashboard from "@/features/user/UserDashboard";
 import Profile from "@/features/user/Profile";
 import MealPlan from "@/features/user/MealPlan";
@@ -31,19 +33,77 @@ export default function AppRouter() {
         <Route path="/signup" element={<SignupPage />} />
       </Route>
 
+      <Route
+        path="/user/profilesetup"
+        element={
+          <ProtectedRoute>
+            <ProfileSetup />
+          </ProtectedRoute>
+        }
+      />
+
       {/* User routes */}
       <Route element={<UserLayout />}>
-        <Route path="/user/userdashboard" element={<UserDashboard />} />
-        <Route path="/user/profile" element={<Profile />} />
-        <Route path="/user/mealplan" element={<MealPlan />} />
-        <Route path="/user/trackfood" element={<TrackFood />} />
-        <Route path="/user/progress" element={<Progress />} />
-        <Route path="/user/reports" element={<Reports />} />
+        <Route
+          path="/user/userdashboard"
+          element={
+            <ProtectedRoute>
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/mealplan"
+          element={
+            <ProtectedRoute>
+              <MealPlan />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/trackfood"
+          element={
+            <ProtectedRoute>
+              <TrackFood />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/progress"
+          element={
+            <ProtectedRoute>
+              <Progress />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/reports"
+          element={
+            <ProtectedRoute>
+              <Reports />
+            </ProtectedRoute>
+          }
+        />
       </Route>
 
       {/* Admin routes */}
       <Route element={<AdminLayout />}>
-        <Route path="/admindashboard" element={<AdminDashboard />} />
+        <Route
+          path="/admindashboard"
+          element={
+            <ProtectedRoute adminOnly>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
       </Route>
     </Routes>
   );

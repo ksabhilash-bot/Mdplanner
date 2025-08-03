@@ -12,6 +12,7 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  // console.log(user);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -81,17 +82,27 @@ export default function Navbar() {
                   <span>{user.name || user.email}</span>
                   <ChevronDown className="h-4 w-4" />
                 </Button>
-                
+
                 {isUserDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-background border border-border z-50">
                     <div className="py-1">
                       <Link
-                        to={user.role === "admin" ? "/admindashboard" : "/user/userdashboard"}
+                        to={
+                          user.role === "admin"
+                            ? "/admindashboard"
+                            : user.isProfileComplete === false
+                            ? "/user/profilesetup"
+                            : "/user/userdashboard"
+                        }
                         className="flex items-center px-4 py-2 text-sm text-black dark:text-white hover:bg-gray-100 dark:hover:bg-muted/50"
                         onClick={() => setIsUserDropdownOpen(false)}
                       >
                         {/* <User className="h-4 w-4 mr-2" /> */}
-                        {user.role === "admin" ? "Admin Dashboard" : "My Dashboard"}
+                        {user.role === "admin"
+                          ? "Admin Dashboard"
+                          : user.isProfileComplete === false
+                          ? "Complete Profile"
+                          : "My Dashboard"}
                       </Link>
                       <button
                         onClick={handleLogout}
@@ -163,16 +174,26 @@ export default function Navbar() {
             >
               How It Works
             </Link>
-            
+
             {isAuthenticated ? (
               <>
                 <Link
-                  to={user.role === "admin" ? "/admindashboard" : "/userdashboard"}
+                  to={
+                    user.role === "admin"
+                      ? "/admindashboard"
+                      : user.isProfileComplete === false
+                      ? "/user/profilesetup"
+                      : "/user/userdashboard"
+                  }
                   className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
                   onClick={closeAllMenus}
                 >
                   <User className="h-4 w-4 mr-2" />
-                  {user.role === "admin" ? "Admin Dashboard" : "My Dashboard"}
+                  {user.role === "admin"
+                    ? "Admin Dashboard"
+                    : user.isProfileComplete === false
+                    ? "Complete Profile"
+                    : "My Dashboard"}
                 </Link>
                 <button
                   onClick={handleLogout}
