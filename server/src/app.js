@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 
 // Import routes
 import authRoutes from "../src/routes/auth.routes.js";
+import userRoutes from "../src/routes/user.rotues.js";
 
 const app = express();
 
@@ -22,5 +23,6 @@ app.get("/", (req, res) => res.json({ message: "Hello from backend!" }));
 
 // Use routes
 app.use("/auth", authRoutes);
+app.use("/user", userRoutes);
 
 export default app;
