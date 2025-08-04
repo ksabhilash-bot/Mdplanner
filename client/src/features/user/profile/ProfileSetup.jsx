@@ -11,67 +11,63 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
 
 import { submitProfile } from "./profile.api";
+import { useProfileStore } from "./profile.store";
 
 export default function ProfileSetup({ className, ...props }) {
-  const [formData, setFormData] = useState({
-    age: "",
-    height: "",
-    weight: "",
-    gender: "",
-    activityLevel: "",
-    dietPreference: "",
-    foodAllergies: [],
-    otherAllergies: "",
-    medicalConditions: [],
-    otherMedicalConditions: "",
-    mealFrequency: "",
-    planType: "",
-    duration: "",
-  });
-
   const navigate = useNavigate();
+  // Calling zustand store for getting state and state update function
+  const { profileData, setProfileData } = useProfileStore();
 
+  // 1. Change handler for setting new state when values changes in input fields
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setProfileData({ [name]: value });
   };
 
+  // 2. Handler for updating state for the select components
   const handleSelectChange = (name, value) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setProfileData({ [name]: value });
   };
 
+  // 3. For multiple selects
   const handleMultiSelect = (name, value) => {
-    setFormData((prev) => {
-      const currentValues = prev[name];
+    const currentValues = profileData[name];
 
-      if (value === "None") {
-        return { ...prev, [name]: ["None"] };
-      }
+    if (value === "None") {
+      setProfileData({ [name]: ["None"] });
+      return;
+    }
 
-      if (currentValues.includes("None")) {
-        return {
-          ...prev,
-          [name]: currentValues.filter((item) => item !== "None").concat(value),
-        };
-      }
+    if (currentValues.includes("None")) {
+      setProfileData({
+        [name]: currentValues.filter((item) => item !== "None").concat(value),
+      });
+      return;
+    }
 
-      return {
-        ...prev,
-        [name]: currentValues.includes(value)
-          ? currentValues.filter((item) => item !== value)
-          : [...currentValues, value],
-      };
+    setProfileData({
+      [name]: currentValues.includes(value)
+        ? currentValues.filter((item) => item !== value)
+        : [...currentValues, value],
     });
   };
 
+  // 4. Mutation hook for submitting form
+  const { mutate, isPending, error } = useMutation({
+    mutationFn: submitProfile,
+    onSuccess: () => {
+      navigate("/user/userdashboard"); // redirect after success
+    },
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    navigate("/meal-plan");
+    mutate(profileData); // send data via React Query
   };
 
   return (
@@ -104,7 +100,7 @@ export default function ProfileSetup({ className, ...props }) {
                   name="age"
                   placeholder="25"
                   required
-                  value={formData.age}
+                  value={profileData.age}
                   onChange={handleChange}
                 />
               </div>
@@ -117,7 +113,7 @@ export default function ProfileSetup({ className, ...props }) {
                   name="height"
                   placeholder="170"
                   required
-                  value={formData.height}
+                  value={profileData.height}
                   onChange={handleChange}
                 />
               </div>
@@ -130,7 +126,7 @@ export default function ProfileSetup({ className, ...props }) {
                   name="weight"
                   placeholder="70"
                   required
-                  value={formData.weight}
+                  value={profileData.weight}
                   onChange={handleChange}
                 />
               </div>
@@ -140,7 +136,7 @@ export default function ProfileSetup({ className, ...props }) {
               <div className="space-y-2">
                 <Label>Gender</Label>
                 <Select
-                  value={formData.gender}
+                  value={profileData.gender}
                   onValueChange={(value) => handleSelectChange("gender", value)}
                 >
                   <SelectTrigger>
@@ -185,7 +181,9 @@ export default function ProfileSetup({ className, ...props }) {
                       key={diet}
                       type="button"
                       variant={
-                        formData.dietPreference === diet ? "default" : "outline"
+                        profileData.dietPreference === diet
+                          ? "default"
+                          : "outline"
                       }
                       onClick={() => handleSelectChange("dietPreference", diet)}
                       className="h-8 px-3 text-xs"
@@ -215,7 +213,7 @@ export default function ProfileSetup({ className, ...props }) {
                       key={allergy}
                       type="button"
                       variant={
-                        formData.foodAllergies.includes(allergy)
+                        profileData.foodAllergies.includes(allergy)
                           ? "default"
                           : "outline"
                       }
@@ -236,7 +234,7 @@ export default function ProfileSetup({ className, ...props }) {
                   id="otherAllergies"
                   name="otherAllergies"
                   placeholder="List any other allergies not mentioned above"
-                  value={formData.otherAllergies}
+                  value={profileData.otherAllergies}
                   onChange={handleChange}
                 />
               </div>
@@ -265,7 +263,7 @@ export default function ProfileSetup({ className, ...props }) {
                       key={condition}
                       type="button"
                       variant={
-                        formData.medicalConditions.includes(condition)
+                        profileData.medicalConditions.includes(condition)
                           ? "default"
                           : "outline"
                       }
@@ -288,7 +286,7 @@ export default function ProfileSetup({ className, ...props }) {
                   id="otherMedicalConditions"
                   name="otherMedicalConditions"
                   placeholder="List any other medical conditions not mentioned above"
-                  value={formData.otherMedicalConditions}
+                  value={profileData.otherMedicalConditions}
                   onChange={handleChange}
                 />
               </div>
@@ -302,7 +300,7 @@ export default function ProfileSetup({ className, ...props }) {
               <div className="space-y-2">
                 <Label>Preferred Meal Frequency</Label>
                 <Select
-                  value={formData.mealFrequency}
+                  value={profileData.mealFrequency}
                   onValueChange={(value) =>
                     handleSelectChange("mealFrequency", value)
                   }
@@ -322,7 +320,7 @@ export default function ProfileSetup({ className, ...props }) {
               <div className="space-y-2">
                 <Label>Plan Type</Label>
                 <Select
-                  value={formData.planType}
+                  value={profileData.planType}
                   onValueChange={(value) =>
                     handleSelectChange("planType", value)
                   }
@@ -348,7 +346,7 @@ export default function ProfileSetup({ className, ...props }) {
               <div className="space-y-2">
                 <Label>Plan Duration</Label>
                 <Select
-                  value={formData.duration}
+                  value={profileData.duration}
                   onValueChange={(value) =>
                     handleSelectChange("duration", value)
                   }
@@ -368,8 +366,10 @@ export default function ProfileSetup({ className, ...props }) {
             </div>
           </div>
 
-          <Button type="submit" className="w-full mt-2">
-            Generate My Personalized Meal Plan
+          <Button type="submit" className="w-full mt-2" disabled={isPending}>
+            {isPending
+              ? "Generating..."
+              : " Generate My Personalized Meal Plan"}
           </Button>
         </div>
 
