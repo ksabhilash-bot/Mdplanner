@@ -1,28 +1,66 @@
+// import { create } from "zustand";
+
+// // Set is a function to update store's state
+// export const useProfileStore = create((set) => ({
+//   // Setting the initial state
+//   profileData: {
+//     age: "",
+//     height: "",
+//     weight: "",
+//     gender: "",
+//     activityLevel: "",
+//     dietPreference: "",
+//     foodAllergies: [],
+//     otherAllergies: "",
+//     medicalConditions: [],
+//     otherMedicalConditions: "",
+//     mealFrequency: "",
+//     planType: "",
+//     duration: "",
+//   },
+
+//   // Function to update the proile data state
+//   setProfileData: (data) => {
+//     set((state) => ({
+//       profileData: { ...state.profileData, ...data },
+//     }));
+//   },
+// }));
+
+// profile.store.js
 import { create } from "zustand";
 
-// Set is a function to update store's state
 export const useProfileStore = create((set) => ({
-  // Setting the initial state
+  // Default values for development
   profileData: {
-    age: "",
-    height: "",
-    weight: "",
-    gender: "",
-    activityLevel: "",
-    dietPreference: "",
-    foodAllergies: [],
+    // Section 1: Basic Information
+    age: 30,
+    height: 170,
+    weight: 70,
+    gender: "male",
+
+    // Section 2: Activity Level
+    activityLevel: "moderate", // default value
+
+    // Section 3: Dietary Preferences
+    dietPreference: "Non-Vegetarian",
+    foodAllergies: ["None"],
     otherAllergies: "",
-    medicalConditions: [],
+
+    // Section 4: Health Information
+    medicalConditions: ["None"],
     otherMedicalConditions: "",
-    mealFrequency: "",
-    planType: "",
-    duration: "",
+
+    // Section 5: Meal Plan Preferences
+    mealFrequency: "3",
+    planType: "flexible",
+    cuisineRegion: "kerala",
+    duration: "1-week",
   },
 
-  // Function to update the proile data state
-  setProfileData: (data) => {
+  // Function to update profile data
+  setProfileData: (update) =>
     set((state) => ({
-      profileData: { ...state.profileData, ...data },
-    }));
-  },
+      profileData: { ...state.profileData, ...update },
+    })),
 }));

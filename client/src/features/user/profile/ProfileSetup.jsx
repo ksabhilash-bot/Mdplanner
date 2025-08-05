@@ -155,7 +155,44 @@ export default function ProfileSetup({ className, ...props }) {
             </div>
           </div>
 
-          {/* Section 2: Dietary Preferences */}
+          {/* Section 2: Activity Level */}
+          <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
+            <h2 className="text-xl font-semibold">Activity Level</h2>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-2">
+                <Label>How active are you?</Label>
+                <Select
+                  value={profileData.activityLevel}
+                  onValueChange={(value) =>
+                    handleSelectChange("activityLevel", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your activity level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sedentary">
+                      Sedentary (little or no exercise)
+                    </SelectItem>
+                    <SelectItem value="light">
+                      Lightly active (light exercise 1-3 days/week)
+                    </SelectItem>
+                    <SelectItem value="moderate">
+                      Moderately active (moderate exercise 3-5 days/week)
+                    </SelectItem>
+                    <SelectItem value="active">
+                      Very active (hard exercise 6-7 days/week)
+                    </SelectItem>
+                    <SelectItem value="extreme">
+                      Extremely active (very hard exercise & physical job)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Dietary Preferences */}
           <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
             <h2 className="text-xl font-semibold">Dietary Preferences</h2>
 
@@ -241,7 +278,7 @@ export default function ProfileSetup({ className, ...props }) {
             </div>
           </div>
 
-          {/* Section 3: Health Information */}
+          {/* Section 4: Health Information */}
           <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
             <h2 className="text-xl font-semibold">Health Information</h2>
 
@@ -293,7 +330,7 @@ export default function ProfileSetup({ className, ...props }) {
             </div>
           </div>
 
-          {/* Section 4: Meal Plan Preferences */}
+          {/* Section 5: Meal Plan Preferences */}
           <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
             <h2 className="text-xl font-semibold">Meal Plan Preferences</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -339,6 +376,34 @@ export default function ProfileSetup({ className, ...props }) {
                       Intermittent Fasting
                     </SelectItem>
                     <SelectItem value="custom">Custom Schedule</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* New: State/Region Selection */}
+              <div className="space-y-2">
+                <Label>Preferred Cuisine Region</Label>
+                <Select
+                  value={profileData.cuisineRegion}
+                  onValueChange={(value) =>
+                    handleSelectChange("cuisineRegion", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your region" />
+                  </SelectTrigger>
+                  <SelectContent>
+                     <SelectItem value="kerala">Kerala</SelectItem>
+                    <SelectItem value="north-indian">North Indian</SelectItem>
+                    <SelectItem value="south-indian">South Indian</SelectItem>
+                    <SelectItem value="east-indian">East Indian</SelectItem>
+                    <SelectItem value="west-indian">West Indian</SelectItem>
+                    <SelectItem value="continental">Continental</SelectItem>
+                    <SelectItem value="middle-eastern">
+                      Middle Eastern
+                    </SelectItem>
+                    <SelectItem value="asian">Asian</SelectItem>
+                    <SelectItem value="no-preference">No Preference</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
