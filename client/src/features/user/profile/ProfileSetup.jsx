@@ -60,7 +60,8 @@ export default function ProfileSetup({ className, ...props }) {
   // 4. Mutation hook for submitting form
   const { mutate, isPending, error } = useMutation({
     mutationFn: submitProfile,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log(data)
       navigate("/user/userdashboard"); // redirect after success
     },
   });
@@ -155,41 +156,87 @@ export default function ProfileSetup({ className, ...props }) {
             </div>
           </div>
 
-          {/* Section 2: Activity Level */}
+          {/* Section 2: Activity & Goals */}
           <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
-            <h2 className="text-xl font-semibold">Activity Level</h2>
-            <div className="grid grid-cols-1 gap-4">
-              <div className="space-y-2">
-                <Label>How active are you?</Label>
-                <Select
-                  value={profileData.activityLevel}
-                  onValueChange={(value) =>
-                    handleSelectChange("activityLevel", value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your activity level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sedentary">
-                      Sedentary (little or no exercise)
-                    </SelectItem>
-                    <SelectItem value="light">
-                      Lightly active (light exercise 1-3 days/week)
-                    </SelectItem>
-                    <SelectItem value="moderate">
-                      Moderately active (moderate exercise 3-5 days/week)
-                    </SelectItem>
-                    <SelectItem value="active">
-                      Very active (hard exercise 6-7 days/week)
-                    </SelectItem>
-                    <SelectItem value="extreme">
-                      Extremely active (very hard exercise & physical job)
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <h2 className="text-xl font-semibold">Activity & Goals</h2>
+
+            {/* Activity Level */}
+            <div className="space-y-2">
+              <Label>Activity Level</Label>
+              <Select
+                value={profileData.activityLevel}
+                onValueChange={(value) =>
+                  handleSelectChange("activityLevel", value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your activity level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sedentary">
+                    Sedentary (little or no exercise)
+                  </SelectItem>
+                  <SelectItem value="light">
+                    Lightly active (light exercise 1-3 days/week)
+                  </SelectItem>
+                  <SelectItem value="moderate">
+                    Moderately active (moderate exercise 3-5 days/week)
+                  </SelectItem>
+                  <SelectItem value="active">
+                    Very active (hard exercise 6-7 days/week)
+                  </SelectItem>
+                  <SelectItem value="extreme">
+                    Extremely active (very hard exercise & physical job)
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            {/* Fitness Goal */}
+            <div className="space-y-2">
+              <Label>Fitness Goal</Label>
+              <Select
+                value={profileData.fitnessGoal}
+                onValueChange={(value) =>
+                  handleSelectChange("fitnessGoal", value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your fitness goal" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="weight-loss">Weight Loss</SelectItem>
+                  <SelectItem value="weight-gain">Weight Gain</SelectItem>
+                  <SelectItem value="weight-maintain">Maintain Weight</SelectItem>
+                  {/* <SelectItem value="build-muscle">Build Muscle</SelectItem> */}
+                  {/* <SelectItem value="improve-endurance">
+                    Improve Endurance
+                  </SelectItem> */}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Target Weight (conditionally shown if goal is weight loss or gain) */}
+            {(profileData.fitnessGoal === "weight-loss" ||
+              profileData.fitnessGoal === "weight-gain") && (
+              <div className="space-y-2">
+                <Label htmlFor="targetWeight">
+                  {profileData.fitnessGoal === "weight-loss"
+                    ? "Target Weight Loss (kg)"
+                    : "Target Weight Gain (kg)"}
+                </Label>
+                <Input
+                  id="targetWeight"
+                  type="number"
+                  name="targetWeight"
+                  placeholder={
+                    profileData.fitnessGoal === "weight-loss" ? "5" : "5"
+                  }
+                  value={profileData.targetWeight}
+                  onChange={handleChange}
+                />
+              </div>
+            )}
           </div>
 
           {/* Section 3: Dietary Preferences */}
@@ -393,7 +440,7 @@ export default function ProfileSetup({ className, ...props }) {
                     <SelectValue placeholder="Select your region" />
                   </SelectTrigger>
                   <SelectContent>
-                     <SelectItem value="kerala">Kerala</SelectItem>
+                    <SelectItem value="kerala">Kerala</SelectItem>
                     <SelectItem value="north-indian">North Indian</SelectItem>
                     <SelectItem value="south-indian">South Indian</SelectItem>
                     <SelectItem value="east-indian">East Indian</SelectItem>
@@ -421,6 +468,7 @@ export default function ProfileSetup({ className, ...props }) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1-day">1 Day Trial</SelectItem>
+                    <SelectItem value="3-day">3 Day</SelectItem>
                     <SelectItem value="1-week">1 Week</SelectItem>
                     <SelectItem value="2-weeks">2 Weeks</SelectItem>
                     <SelectItem value="1-month">1 Month</SelectItem>

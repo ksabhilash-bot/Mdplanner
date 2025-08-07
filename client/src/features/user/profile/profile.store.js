@@ -9,6 +9,8 @@
 //     weight: "",
 //     gender: "",
 //     activityLevel: "",
+//     fitnessGoal: "",
+//    targetWeight: "",
 //     dietPreference: "",
 //     foodAllergies: [],
 //     otherAllergies: "",
@@ -41,6 +43,8 @@ export const useProfileStore = create((set) => ({
 
     // Section 2: Activity Level
     activityLevel: "moderate", // default value
+    fitnessGoal: "weight-maintain",
+    targetWeight: "",
 
     // Section 3: Dietary Preferences
     dietPreference: "Non-Vegetarian",
@@ -55,7 +59,7 @@ export const useProfileStore = create((set) => ({
     mealFrequency: "3",
     planType: "flexible",
     cuisineRegion: "kerala",
-    duration: "1-week",
+    duration: "3-day",
   },
 
   // Function to update profile data
