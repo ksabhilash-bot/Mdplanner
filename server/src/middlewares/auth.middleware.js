@@ -1,16 +1,24 @@
 import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
-export const requireAuth = (req, res, next) => {
-  const token = req.cookies.token;
-  if (!token) {
-    res.status(401).json({ message: "Not logged in" });
-  }
-
+export const authMiddleware = async (req, res, next) => {
   try {
-    const user = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = user;
+    const token = req.cookies.token;
+
+    if (!token) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Token not found" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(decoded);
+
+    req.user = decoded;
+    // console.log(req.user);
+
     next();
-  } catch {
-    return res.status(401).json({ message: "User is not authorized" });
+  } catch (error) {
+    res.status(401).json({ success: false, message: "Unauthorized" });
   }
 };

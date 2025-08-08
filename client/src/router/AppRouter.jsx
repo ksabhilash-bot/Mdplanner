@@ -10,7 +10,7 @@ import ProtectedRoute from "@/features/auth/ProtectedRoute"; // create this if n
 import ProfileSetup from "@/features/user/profile/ProfileSetup";
 import UserDashboard from "@/features/user/UserDashboard";
 import Profile from "@/features/user/Profile";
-import MealPlan from "@/features/user/MealPlan";
+import MealPlan from "@/features/user/meal/MealPlan";
 import TrackFood from "@/features/user/TrackFood";
 import Progress from "@/features/user/Progress";
 import Reports from "@/features/user/Reports";

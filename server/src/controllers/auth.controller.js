@@ -1,8 +1,6 @@
 import jwt from "jsonwebtoken";
 import { signUpService, loginService } from "../services/auth.service.js";
 
-import loginSchema from "../validators/signup.schema.js";
-import signupSchema from "../validators/signup.schema.js";
 import User from "../models/User.js";
 
 export const signUp = async (req, res) => {

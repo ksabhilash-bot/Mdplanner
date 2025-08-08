@@ -61,7 +61,7 @@ export default function ProfileSetup({ className, ...props }) {
   const { mutate, isPending, error } = useMutation({
     mutationFn: submitProfile,
     onSuccess: (data) => {
-      console.log(data)
+      console.log(data.message);
       navigate("/user/userdashboard"); // redirect after success
     },
   });
@@ -207,7 +207,9 @@ export default function ProfileSetup({ className, ...props }) {
                 <SelectContent>
                   <SelectItem value="weight-loss">Weight Loss</SelectItem>
                   <SelectItem value="weight-gain">Weight Gain</SelectItem>
-                  <SelectItem value="weight-maintain">Maintain Weight</SelectItem>
+                  <SelectItem value="weight-maintain">
+                    Maintain Weight
+                  </SelectItem>
                   {/* <SelectItem value="build-muscle">Build Muscle</SelectItem> */}
                   {/* <SelectItem value="improve-endurance">
                     Improve Endurance

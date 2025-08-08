@@ -4,6 +4,7 @@ import { calculateBmr } from "../utils/calculateBmr.js";
 import { calculateTdee } from "../utils/calculateTdee.js";
 import { adjustCaloriesForGoal } from "../utils/adjustCaloriesForGoal.js";
 import { calculateMacros } from "../utils/calculateMacros.js";
+import User from "../models/User.js";
 
 export const generateMealPlan = async (user) => {
   const ai = new GoogleGenAI({
@@ -61,4 +62,27 @@ export const generateMealPlan = async (user) => {
   const mealPlan = JSON.parse(cleaned);
 
   return mealPlan;
+};
+
+export const markProfileComplete = async (userId) => {
+  try {
+    // console.log(userId);
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        isProfileComplete: true,
+      },
+      { new: true }
+    );
+
+    console.log(updatedUser);
+
+    if (!updatedUser) {
+      return { success: false, message: "User not found" };
+    }
+
+    return { success: true, data: updatedUser };
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 };
