@@ -7,6 +7,8 @@ import { calculateMacros } from "../utils/calculateMacros.js";
 import User from "../models/User.js";
 
 export const generateMealPlan = async (user) => {
+  console.log("gnerate");
+
   const ai = new GoogleGenAI({
     apiKey: "AIzaSyBZNbCee_ngv7ZtGk6XeMAmOuCo3snyKWE",
   });
@@ -60,6 +62,7 @@ export const generateMealPlan = async (user) => {
 
   // Parse to usable JSON object
   const mealPlan = JSON.parse(cleaned);
+  // console.log(mealPlan);
 
   return mealPlan;
 };
