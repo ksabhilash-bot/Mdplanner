@@ -47,6 +47,9 @@ export const profileSetup = async (req, res) => {
       },
       { new: true }
     );
+    // .populate("profile") // ✅ Get full profile data
+    // .populate("mealPlans") // ✅ Get full meal plan(s)
+    // .lean(); // ✅ send plain object without Mongoose metadata
 
     res.status(200).json({
       message: "Profile setup complete",
@@ -56,5 +59,46 @@ export const profileSetup = async (req, res) => {
     });
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+};
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // Find user and populate only the profile
+    const user = await User.findById(userId).populate("profile").lean();
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({
+      user,
+      profile: user.profile || null,
+    });
+  } catch (err) {
+    console.error("Error fetching user profile:", err);
+    res.status(500).json({ error: "Failed to fetch user profile" });
+  }
+};
+
+export const getMealPlan = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // Find the latest meal plan for the user, sorted by creation date descending
+    const mealPlan = await MealPlan.findOne({ user: userId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    if (!mealPlan) {
+      return res.status(404).json({ error: "Meal plan not found" });
+    }
+
+    res.status(200).json({ mealPlan });
+  } catch (err) {
+    console.error("Error fetching meal plan:", err);
+    res.status(500).json({ error: "Failed to fetch meal plan" });
   }
 };

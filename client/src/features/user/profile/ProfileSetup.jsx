@@ -15,13 +15,17 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 
-import { submitProfile } from "./profile.api";
+import { fetchUserProfile } from "./profile.api";
 import { useProfileStore } from "./profile.store";
+import { useAuthStore } from "@/features/auth/auth.store";
+import { useMealPlanStore } from "../meal/mealPlan.store";
 
 export default function ProfileSetup({ className, ...props }) {
   const navigate = useNavigate();
   // Calling zustand store for getting state and state update function
   const { profileData, setProfileData } = useProfileStore();
+  const { setUser } = useAuthStore();
+  const { setMealPlan } = useMealPlanStore();
 
   // 1. Change handler for setting new state when values changes in input fields
   const handleChange = (e) => {
@@ -58,10 +62,20 @@ export default function ProfileSetup({ className, ...props }) {
   };
 
   // 4. Mutation hook for submitting form
-  const { mutate, isPending, error } = useMutation({
-    mutationFn: submitProfile,
+  const { mutate, isPending } = useMutation({
+    mutationFn: fetchUserProfile,
     onSuccess: (data) => {
-      console.log(data.message);
+      console.log("Backend messageeeee:", data.message);
+      console.log("Backend dataaa: ", data);
+
+      console.log("user data: ", data.user);
+      console.log("user profile: ", data.profile);
+
+      // ✅ Update Zustand store immediately
+      setProfileData(data.profile);
+      setUser(data.user); // ✅ sync auth store
+      setMealPlan(data.mealPlan);
+
       navigate("/user/userdashboard"); // redirect after success
     },
   });

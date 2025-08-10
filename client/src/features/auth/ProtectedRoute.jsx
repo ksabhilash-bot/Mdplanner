@@ -6,6 +6,7 @@ import { FullPageSpinner } from "@/components/full-page-spinner";
 export default function ProtectedRoute({ children, adminOnly = false }) {
   const navigate = useNavigate();
   const { user, isAuthenticated, loading } = useAuthStore();
+  console.log("this is user: ", user);
 
   useEffect(() => {
     if (!loading) {

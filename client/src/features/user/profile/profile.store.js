@@ -67,4 +67,7 @@ export const useProfileStore = create((set) => ({
     set((state) => ({
       profileData: { ...state.profileData, ...update },
     })),
+
+  // Replace entire profile data (e.g., fetched from backend)
+  // setFullProfileData: (data) => set({ profileData: data }),
 }));
