@@ -6,6 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchUserProfile } from "../profile/profile.api";
 import { FullPageSpinner } from "@/components/full-page-spinner";
 import { useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function UserProfilePage() {
   const navigate = useNavigate();
@@ -21,7 +23,6 @@ export default function UserProfilePage() {
   // Update stores when data is fetched
   useEffect(() => {
     if (data) {
-      console.log("userprofile: ", data.profile);
       setUser(data.user);
       setProfileData(data.profile);
     }
@@ -81,36 +82,25 @@ export default function UserProfilePage() {
     );
   }
 
-  // Profile sections data
+  // Compact profile sections
   const profileSections = [
     {
-      title: "Account Information",
+      title: "Personal Details",
       items: [
         { label: "Name", value: user?.name },
         { label: "Email", value: user?.email },
-        {
-          label: "Account Status",
-          value: user?.isProfileComplete ? "Complete" : "Incomplete",
-        },
-      ],
-    },
-    {
-      title: "Basic Information",
-      items: [
         { label: "Age", value: profileData?.age },
         { label: "Gender", value: profileData?.gender },
         {
-          label: "Height",
-          value: profileData?.height ? `${profileData.height} cm` : null,
-        },
-        {
-          label: "Weight",
-          value: profileData?.weight ? `${profileData.weight} kg` : null,
+          label: "Height/Weight",
+          value: `${profileData?.height || "--"} cm / ${
+            profileData?.weight || "--"
+          } kg`,
         },
       ],
     },
     {
-      title: "Activity & Goals",
+      title: "Health & Goals",
       items: [
         { label: "Activity Level", value: profileData?.activityLevel },
         { label: "Fitness Goal", value: profileData?.fitnessGoal },
@@ -118,73 +108,62 @@ export default function UserProfilePage() {
           label: "Target Weight",
           value: profileData?.targetWeight
             ? `${profileData.targetWeight} kg`
-            : "Not specified",
+            : "--",
         },
-      ],
-    },
-    {
-      title: "Dietary Preferences",
-      items: [
-        { label: "Diet Preference", value: profileData?.dietPreference },
-        { label: "Cuisine Region", value: profileData?.cuisineRegion },
-        { label: "Meals Per Day", value: profileData?.mealFrequency },
-      ],
-    },
-    {
-      title: "Health Information",
-      items: [
         {
-          label: "Food Allergies",
+          label: "Allergies",
           value: profileData?.foodAllergies?.includes("None")
             ? "None"
-            : profileData?.foodAllergies?.join(", ") || "None specified",
+            : profileData?.foodAllergies?.join(", ") || "--",
         },
         {
-          label: "Other Allergies",
-          value: profileData?.otherAllergies || "None specified",
-        },
-        {
-          label: "Medical Conditions",
+          label: "Conditions",
           value: profileData?.medicalConditions?.includes("None")
             ? "None"
-            : profileData?.medicalConditions?.join(", ") || "None specified",
-        },
-        {
-          label: "Other Conditions",
-          value: profileData?.otherMedicalConditions || "None specified",
+            : profileData?.medicalConditions?.join(", ") || "--",
         },
       ],
     },
     {
-      title: "Meal Plan Preferences",
+      title: "Diet Preferences",
       items: [
+        { label: "Diet Type", value: profileData?.dietPreference },
+        { label: "Cuisine", value: profileData?.cuisineRegion },
+        { label: "Meals/Day", value: profileData?.mealFrequency },
         { label: "Plan Type", value: profileData?.planType },
-        { label: "Duration Preference", value: profileData?.duration },
+        { label: "Duration", value: profileData?.duration },
       ],
     },
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+    <div className="container mx-auto px-4 py-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header with status and actions */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Your Profile</h1>
-            <p className="text-muted-foreground">
-              {user?.isProfileComplete
-                ? "Profile complete"
-                : "Profile incomplete"}
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              My Profile
+              <Badge
+                variant={user?.isProfileComplete ? "default" : "secondary"}
+              >
+                {user?.isProfileComplete ? "Complete" : "Incomplete"}
+              </Badge>
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Last updated: {new Date().toLocaleDateString()}
             </p>
           </div>
-          <div className="space-x-2">
-            <Button onClick={() => navigate("/profile/edit")} variant="outline">
+
+          <div className="flex flex-wrap gap-2">
+            <Button
+              onClick={() => navigate("/profile/edit")}
+              variant="outline"
+              size="sm"
+            >
               Edit Profile
             </Button>
-            <Button
-              onClick={() => navigate("/user/meal-plan")}
-              variant="default"
-            >
+            <Button onClick={() => navigate("/user/meal-plan")} size="sm">
               View Meal Plan
             </Button>
           </div>
@@ -192,60 +171,56 @@ export default function UserProfilePage() {
 
         {/* Profile incomplete warning */}
         {!user?.isProfileComplete && (
-          <div className="mb-6 border rounded-lg p-4 shadow-sm bg-orange-50 border-orange-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium text-orange-800">
-                  Complete Your Profile
-                </h3>
-                <p className="text-sm text-orange-600">
-                  Complete your profile to get personalized meal and workout
-                  plans
-                </p>
-              </div>
-              <Button
-                onClick={() => navigate("/profile/setup")}
-                size="sm"
-                className="bg-orange-600 hover:bg-orange-700"
-              >
-                Complete Now
-              </Button>
+          <div className="mb-6 p-4 rounded-lg bg-orange-50 border border-orange-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+              <h3 className="font-medium text-orange-800">
+                Complete Your Profile
+              </h3>
+              <p className="text-sm text-orange-600">
+                Get personalized recommendations by completing your profile
+              </p>
             </div>
+            <Button
+              onClick={() => navigate("/profile/setup")}
+              size="sm"
+              className="bg-orange-600 hover:bg-orange-700 whitespace-nowrap"
+            >
+              Complete Setup
+            </Button>
           </div>
         )}
 
-        {/* Profile Sections */}
-        <div className="grid gap-6">
+        {/* Main profile content in compact grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {profileSections.map((section) => (
-            <div
-              key={section.title}
-              className="border rounded-lg p-6 shadow-sm"
-            >
-              <h2 className="text-xl font-semibold mb-4">{section.title}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card key={section.title}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">{section.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
                 {section.items.map((item) => (
-                  <div key={item.label} className="space-y-1">
-                    <p className="text-sm text-muted-foreground">
+                  <div key={item.label} className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">
                       {item.label}
-                    </p>
-                    <p className="font-medium">
-                      {item.value || "Not specified"}
-                    </p>
+                    </span>
+                    <span className="text-sm font-medium text-right">
+                      {item.value}
+                    </span>
                   </div>
                 ))}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
-        {/* Action Buttons */}
-        <div className="mt-8 border rounded-lg p-6 shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Quick actions */}
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-3">Quick Actions</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <Button
               onClick={() => navigate("/user/meal-plan")}
               variant="outline"
-              className="h-20 flex-col"
+              className="h-20 flex-col py-2"
             >
               <span className="font-medium">Meal Plan</span>
               <span className="text-xs text-muted-foreground">
@@ -255,7 +230,7 @@ export default function UserProfilePage() {
             <Button
               onClick={() => navigate("/user/workout-plan")}
               variant="outline"
-              className="h-20 flex-col"
+              className="h-20 flex-col py-2"
             >
               <span className="font-medium">Workout Plan</span>
               <span className="text-xs text-muted-foreground">
@@ -265,7 +240,7 @@ export default function UserProfilePage() {
             <Button
               onClick={() => navigate("/user/progress")}
               variant="outline"
-              className="h-20 flex-col"
+              className="h-20 flex-col py-2"
             >
               <span className="font-medium">Progress</span>
               <span className="text-xs text-muted-foreground">
@@ -275,7 +250,7 @@ export default function UserProfilePage() {
             <Button
               onClick={() => navigate("/profile/edit")}
               variant="outline"
-              className="h-20 flex-col"
+              className="h-20 flex-col py-2"
             >
               <span className="font-medium">Edit Profile</span>
               <span className="text-xs text-muted-foreground">
@@ -285,24 +260,7 @@ export default function UserProfilePage() {
           </div>
         </div>
 
-        {/* Meal Plans Section - Uncomment when needed */}
-        {/* {user?.mealPlans?.length > 0 && (
-          <div className="mt-8 border rounded-lg p-6 shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Your Meal Plans</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {user.mealPlans.map((planId) => (
-                <div 
-                  key={planId}
-                  className="border p-4 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-                  onClick={() => navigate(`/meal-plans/${planId}`)}
-                >
-                  <p className="font-medium">Meal Plan</p>
-                  <p className="text-sm text-muted-foreground">ID: {planId.slice(-6)}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )} */}
+        {/* Additional details in an accordion would go here */}
       </div>
     </div>
   );

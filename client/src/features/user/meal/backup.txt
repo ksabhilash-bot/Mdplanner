@@ -1,0 +1,160 @@
+import { useMealPlanStore } from "../meal/mealPlan.store";
+import { Button } from "@/components/ui/Button";
+import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import { fetchMealPlan } from "./meal.api";
+import { useQuery } from "@tanstack/react-query";
+import { FullPageSpinner } from "@/components/full-page-spinner";
+import { useEffect } from "react";
+
+export default function MealPlan() {
+  const navigate = useNavigate();
+  const { mealPlan, setMealPlan } = useMealPlanStore();
+
+  // Fetch meal plan on load
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["userMealPlan"],
+    queryFn: fetchMealPlan,
+    select: (data) => data.mealPlan, // Extract mealPlan from response
+  });
+
+  // Update store when data is fetched
+  useEffect(() => {
+    if (data) {
+      console.log("myrr success");
+      console.log("ppp", data);
+      setMealPlan(data);
+    }
+  }, [data, setMealPlan]);
+
+  // Handle error case
+  useEffect(() => {
+    if (isError) {
+      console.error("fetchMealPlan error:", error);
+    }
+  }, [isError, error]);
+
+  console.log("mealPlan from store:", mealPlan);
+
+  if (isLoading) return <FullPageSpinner />;
+
+  if (isError) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p>Error loading meal plan: {error?.message}</p>
+        <Button onClick={() => navigate("/")} className="mt-4">
+          Back to Home
+        </Button>
+      </div>
+    );
+  }
+
+  if (!mealPlan) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p>No meal plan data available</p>
+        <Button onClick={() => navigate("/")} className="mt-4">
+          Back to Home
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Meal Plan #{mealPlan.planNo}</h1>
+            <p className="text-muted-foreground">
+              Created: {format(new Date(mealPlan.createdAt), "MMMM d, yyyy")}
+            </p>
+          </div>
+          <Button onClick={() => navigate(-1)} variant="outline">
+            Back
+          </Button>
+        </div>
+
+        {/* Profile Snapshot */}
+        {/* <div className="border rounded-lg p-6 shadow-sm mb-8">
+          <h2 className="text-xl font-semibold mb-4">Profile Snapshot</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Age</p>
+              <p className="font-medium">{mealPlan.profileSnapshot.age}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Gender</p>
+              <p className="font-medium">{mealPlan.profileSnapshot.gender}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Height</p>
+              <p className="font-medium">{mealPlan.profileSnapshot.height} cm</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Weight</p>
+              <p className="font-medium">{mealPlan.profileSnapshot.weight} kg</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Activity Level</p>
+              <p className="font-medium">{mealPlan.profileSnapshot.activityLevel}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Diet Preference</p>
+              <p className="font-medium">{mealPlan.profileSnapshot.dietPreference}</p>
+            </div>
+          </div>
+        </div> */}
+
+        {/* Meal Plan Days */}
+        <div className="space-y-6">
+          {mealPlan.meals.map((day) => (
+            <div key={day._id} className="border rounded-lg p-6 shadow-sm">
+              <h2 className="text-xl font-semibold mb-4">{day.day}</h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Breakfast */}
+                <div className="space-y-2">
+                  <h3 className="font-medium">Breakfast</h3>
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <p>{day.breakfast.meal}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {day.breakfast.calories} calories
+                    </p>
+                  </div>
+                </div>
+
+                {/* Lunch */}
+                <div className="space-y-2">
+                  <h3 className="font-medium">Lunch</h3>
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <p>{day.lunch.meal}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {day.lunch.calories} calories
+                    </p>
+                  </div>
+                </div>
+
+                {/* Dinner */}
+                <div className="space-y-2">
+                  <h3 className="font-medium">Dinner</h3>
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <p>{day.dinner.meal}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {day.dinner.calories} calories
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8 flex justify-end">
+          <Button onClick={() => navigate(-1)}>Back to Profile</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
