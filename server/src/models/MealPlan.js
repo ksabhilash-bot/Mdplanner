@@ -9,9 +9,12 @@ const mealPlanSchema = new mongoose.Schema({
 
   createdAt: { type: Date, default: Date.now },
 
+  startDate: { type: Date, required: true }, // New
+  endDate: { type: Date, required: true }, // New
+
   meals: [
     {
-      day: String,
+      date: Date, // Changed from 'day' string to Date
       breakfast: { meal: String, calories: Number },
       lunch: { meal: String, calories: Number },
       dinner: { meal: String, calories: Number },

@@ -48,21 +48,21 @@ const data = {
       url: "/user/mealplan",
       icon: Utensils,
     },
-    {
-      title: "Food Tracking",
-      url: "/user/trackfood",
-      icon: Calendar,
-    },
-    {
-      title: "Progress",
-      url: "/user/progress",
-      icon: Activity,
-    },
-    {
-      title: "Reports",
-      url: "/user/reports",
-      icon: FileText,
-    },
+    // {
+    //   title: "Food Tracking",
+    //   url: "/user/trackfood",
+    //   icon: Calendar,
+    // },
+    // {
+    //   title: "Progress",
+    //   url: "/user/progress",
+    //   icon: Activity,
+    // },
+    // {
+    //   title: "Reports",
+    //   url: "/user/reports",
+    //   icon: FileText,
+    // },
     // {
     //   title: "Community",
     //   url: "#",

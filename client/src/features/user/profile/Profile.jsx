@@ -39,7 +39,7 @@ export default function UserProfilePage() {
 
   if (isError) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 xl:px-8 py-8">
         <div className="max-w-4xl mx-auto text-center">
           <div className="border rounded-lg p-6 shadow-sm bg-red-50 border-red-200">
             <h2 className="text-xl font-semibold text-red-800 mb-2">
@@ -136,23 +136,25 @@ export default function UserProfilePage() {
     },
   ];
 
+  // px-4 py-6
+
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto py-8 px-2">
       <div className="max-w-6xl mx-auto">
         {/* Header with status and actions */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
               My Profile
-              <Badge
+              {/* <Badge
                 variant={user?.isProfileComplete ? "default" : "secondary"}
               >
                 {user?.isProfileComplete ? "Complete" : "Incomplete"}
-              </Badge>
+              </Badge> */}
             </h1>
-            <p className="text-sm text-muted-foreground">
+            {/* <p className="text-sm text-muted-foreground">
               Last updated: {new Date().toLocaleDateString()}
-            </p>
+            </p> */}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -163,9 +165,9 @@ export default function UserProfilePage() {
             >
               Edit Profile
             </Button>
-            <Button onClick={() => navigate("/user/meal-plan")} size="sm">
+            {/* <Button onClick={() => navigate("/user/meal-plan")} size="sm">
               View Meal Plan
-            </Button>
+            </Button> */}
           </div>
         </div>
 
@@ -214,7 +216,7 @@ export default function UserProfilePage() {
         </div>
 
         {/* Quick actions */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <h2 className="text-lg font-semibold mb-3">Quick Actions</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <Button
@@ -258,7 +260,7 @@ export default function UserProfilePage() {
               </span>
             </Button>
           </div>
-        </div>
+        </div> */}
 
         {/* Additional details in an accordion would go here */}
       </div>

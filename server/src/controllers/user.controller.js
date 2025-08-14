@@ -5,9 +5,10 @@ import { generateMealPlan } from "../services/user.service.js";
 
 export const profileSetup = async (req, res) => {
   try {
+    console.log("profile setup route");
+
     const userId = req.user.userId;
     const userProfileData = req.body;
-    // console.log(userId, userProfileData);
 
     // 1️⃣ Save Profile
     const profile = new Profile({
@@ -22,17 +23,39 @@ export const profileSetup = async (req, res) => {
     const mealPlanData = await generateMealPlan(userProfileData);
     console.log("ooo", mealPlanData);
 
+    // Calculate start and end dates
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + mealPlanData.length - 1);
+    endDate.setHours(23, 59, 59, 999);
+
+    // Add real dates to meals
+    const mealsWithDates = mealPlanData.map((meal, index) => {
+      const mealDate = new Date(startDate);
+      mealDate.setDate(startDate.getDate() + index);
+
+      return {
+        ...meal,
+        date: mealDate,
+      };
+    });
+
     const mealPlan = new MealPlan({
       user: userId,
       profileSnapshot: userProfileData,
-      meals: mealPlanData,
+      startDate: startDate,
+      endDate: endDate,
+      meals: mealsWithDates,
     });
+
     try {
       await mealPlan.save();
       console.log("daa");
     } catch (saveErr) {
       console.error("MealPlan save error:", saveErr);
-      throw saveErr; // rethrow so 400 is sent
+      throw saveErr;
     }
 
     console.log("daa");
@@ -47,9 +70,8 @@ export const profileSetup = async (req, res) => {
       },
       { new: true }
     );
-    // .populate("profile") // ✅ Get full profile data
-    // .populate("mealPlans") // ✅ Get full meal plan(s)
-    // .lean(); // ✅ send plain object without Mongoose metadata
+
+    console.log("mp: ", mealPlan);
 
     res.status(200).json({
       message: "Profile setup complete",

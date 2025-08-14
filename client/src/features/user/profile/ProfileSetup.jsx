@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 
-import { fetchUserProfile } from "./profile.api";
+import { submitProfile } from "./profile.api";
 import { useProfileStore } from "./profile.store";
 import { useAuthStore } from "@/features/auth/auth.store";
 import { useMealPlanStore } from "../meal/mealPlan.store";
@@ -63,7 +63,7 @@ export default function ProfileSetup({ className, ...props }) {
 
   // 4. Mutation hook for submitting form
   const { mutate, isPending } = useMutation({
-    mutationFn: fetchUserProfile,
+    mutationFn: submitProfile,
     onSuccess: (data) => {
       console.log("Backend messageeeee:", data.message);
       console.log("Backend dataaa: ", data);
