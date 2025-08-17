@@ -133,3 +133,15 @@
     padding: 0;
   }
 }
+
+:root {
+  --chart-1: 220 70% 50%;  /* Blue for consumed */
+  --chart-2: 160 60% 45%;  /* Green for target */
+  --chart-3: 30 80% 55%;   /* Orange for planned */
+}
+
+[data-theme="dark"] {
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+}

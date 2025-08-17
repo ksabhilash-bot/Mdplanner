@@ -11,7 +11,7 @@ import ProfileSetup from "@/features/user/profile/ProfileSetup";
 import UserDashboard from "@/features/user/UserDashboard";
 import Profile from "@/features/user/profile/Profile";
 import MealPlan from "@/features/user/meal/MealPlan";
-import TrackFood from "@/features/user/TrackFood";
+// import TrackFood from "@/features/user/meal/EditMealPlan";
 import Progress from "@/features/user/Progress";
 import Reports from "@/features/user/Reports";
 
@@ -68,14 +68,14 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/user/trackfood"
+        {/* <Route
+          path="/user/editmealplan"
           element={
             <ProtectedRoute>
               <TrackFood />
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route
           path="/user/progress"
           element={

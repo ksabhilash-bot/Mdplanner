@@ -1,5 +1,11 @@
 import mongoose from "mongoose";
 
+const mealSubSchema = new mongoose.Schema({
+  meal: String,
+  calories: Number,
+  eaten: { type: Boolean, default: false }, // New
+});
+
 const mealPlanSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 
@@ -9,20 +15,21 @@ const mealPlanSchema = new mongoose.Schema({
 
   createdAt: { type: Date, default: Date.now },
 
-  startDate: { type: Date, required: true }, // New
-  endDate: { type: Date, required: true }, // New
-
+  startDate: { type: Date, required: true },
+  endDate: { type: Date, required: true },
+  targetCalories: { type: Number },
+  
   meals: [
     {
-      date: Date, // Changed from 'day' string to Date
-      breakfast: { meal: String, calories: Number },
-      lunch: { meal: String, calories: Number },
-      dinner: { meal: String, calories: Number },
+      date: Date,
+      breakfast: mealSubSchema,
+      lunch: mealSubSchema,
+      dinner: mealSubSchema,
     },
   ],
 });
 
-// Optional: auto-increment plan number per user
+// Auto-increment plan number per user
 mealPlanSchema.pre("save", async function (next) {
   if (!this.isNew) return next();
 

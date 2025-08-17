@@ -61,10 +61,10 @@ export const generateMealPlan = async (user) => {
     .trim();
 
   // Parse to usable JSON object
-  const mealPlan = JSON.parse(cleaned);
+  const mealPlanData = JSON.parse(cleaned);
   // console.log(mealPlan);
 
-  return mealPlan;
+  return { mealPlanData, targetCalories };
 };
 
 export const markProfileComplete = async (userId) => {

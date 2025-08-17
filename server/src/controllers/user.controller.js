@@ -8,7 +8,12 @@ export const profileSetup = async (req, res) => {
     console.log("profile setup route");
 
     const userId = req.user.userId;
+    console.log("user id: ", userId);
+
     const userProfileData = req.body;
+    console.log("userprofile data: ", userProfileData);
+
+    console.log("hi");
 
     // 1️⃣ Save Profile
     const profile = new Profile({
@@ -20,7 +25,9 @@ export const profileSetup = async (req, res) => {
     console.log("Hi");
 
     // 2️⃣ Generate and Save Meal Plan
-    const mealPlanData = await generateMealPlan(userProfileData);
+    const { mealPlanData, targetCalories } = await generateMealPlan(
+      userProfileData
+    );
     console.log("ooo", mealPlanData);
 
     // Calculate start and end dates
@@ -47,6 +54,7 @@ export const profileSetup = async (req, res) => {
       profileSnapshot: userProfileData,
       startDate: startDate,
       endDate: endDate,
+      targetCalories,
       meals: mealsWithDates,
     });
 
@@ -94,7 +102,6 @@ export const getUserProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-
     res.status(200).json({
       user,
       profile: user.profile || null,
@@ -122,5 +129,97 @@ export const getMealPlan = async (req, res) => {
   } catch (err) {
     console.error("Error fetching meal plan:", err);
     res.status(500).json({ error: "Failed to fetch meal plan" });
+  }
+};
+
+export const updateMealCompletion = async (req, res) => {
+  console.log("update meal controller");
+
+  try {
+    console.log("update meal controller 2");
+    const { mealPlanId, date, mealType, eaten } = req.body;
+    const userId = req.user.userId; // From auth middleware
+
+    // Validation
+    if (!mealPlanId || !date || !mealType || typeof eaten !== "boolean") {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: mealPlanId, date, mealType, eaten",
+      });
+    }
+    console.log("update meal controller 3");
+
+    if (!["breakfast", "lunch", "dinner"].includes(mealType)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid mealType. Must be breakfast, lunch, or dinner",
+      });
+    }
+    console.log("update meal controller 4");
+
+    // Find the meal plan and verify ownership
+    const mealPlan = await MealPlan.findOne({
+      _id: mealPlanId,
+      user: userId,
+    });
+
+    if (!mealPlan) {
+      return res.status(404).json({
+        success: false,
+        message: "Meal plan not found or access denied",
+      });
+    }
+    console.log("update meal controller 5");
+
+    // Find the specific meal for the given date
+    const targetDate = new Date(date);
+    const mealIndex = mealPlan.meals.findIndex((meal) => {
+      const mealDate = new Date(meal.date);
+      return mealDate.toDateString() === targetDate.toDateString();
+    });
+
+    if (mealIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: "No meal found for the specified date",
+      });
+    }
+    console.log("update meal controller 6");
+
+    // Update the eaten status for the specific meal type
+    if (!mealPlan.meals[mealIndex][mealType]) {
+      // Initialize meal if it doesn't exist
+      mealPlan.meals[mealIndex][mealType] = {
+        meal: "",
+        calories: 0,
+        eaten: eaten,
+      };
+    } else {
+      mealPlan.meals[mealIndex][mealType].eaten = eaten;
+    }
+
+    // Save the updated meal plan
+    await mealPlan.save();
+
+    console.log("update meal controller 7");
+
+    res.status(200).json({
+      success: true,
+      message: `${mealType} marked as ${eaten ? "eaten" : "not eaten"}`,
+      data: {
+        mealPlanId,
+        date,
+        mealType,
+        eaten,
+        updatedMeal: mealPlan.meals[mealIndex][mealType],
+      },
+    });
+  } catch (error) {
+    console.error("Error updating meal completion:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
   }
 };

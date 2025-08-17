@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 import { submitProfile } from "./profile.api";
 import { useProfileStore } from "./profile.store";
@@ -22,23 +23,19 @@ import { useMealPlanStore } from "../meal/mealPlan.store";
 
 export default function ProfileSetup({ className, ...props }) {
   const navigate = useNavigate();
-  // Calling zustand store for getting state and state update function
-  const { profileData, setProfileData } = useProfileStore();
+  const { profileData, setProfileData, getFormDataForSubmission } = useProfileStore();
   const { setUser } = useAuthStore();
   const { setMealPlan } = useMealPlanStore();
 
-  // 1. Change handler for setting new state when values changes in input fields
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProfileData({ [name]: value });
   };
 
-  // 2. Handler for updating state for the select components
   const handleSelectChange = (name, value) => {
     setProfileData({ [name]: value });
   };
 
-  // 3. For multiple selects
   const handleMultiSelect = (name, value) => {
     const currentValues = profileData[name];
 
@@ -61,28 +58,55 @@ export default function ProfileSetup({ className, ...props }) {
     });
   };
 
-  // 4. Mutation hook for submitting form
-  const { mutate, isPending } = useMutation({
+  const { mutate, isPending, isSuccess, isError, error, data } = useMutation({
     mutationFn: submitProfile,
-    onSuccess: (data) => {
-      console.log("Backend messageeeee:", data.message);
-      console.log("Backend dataaa: ", data);
-
-      console.log("user data: ", data.user);
-      console.log("user profile: ", data.profile);
-
-      // ✅ Update Zustand store immediately
-      setProfileData(data.profile);
-      setUser(data.user); // ✅ sync auth store
-      setMealPlan(data.mealPlan);
-
-      navigate("/user/userdashboard"); // redirect after success
-    },
   });
+
+  // Handle success using useEffect
+  useEffect(() => {
+    if (isSuccess && data) {
+      console.log("✅ Backend response:", data);
+
+      if (data.data?.user) {
+        setUser(data.data.user);
+      } else {
+        // Manually update the user's profile completion status if backend doesn't return updated user
+        setUser({ 
+          ...useAuthStore.getState().user, 
+          isProfileComplete: true 
+        });
+      }
+      
+      if (data.data?.mealPlan) {
+        setMealPlan(data.data.mealPlan);
+      }
+      
+      navigate("/user/userdashboard");
+    }
+  }, [isSuccess, data, setUser, setMealPlan, navigate]);
+
+  // Handle error using useEffect
+  useEffect(() => {
+    if (isError) {
+      console.error("❌ Profile setup failed:", error);
+      // You can add toast notifications or other error handling here
+    }
+  }, [isError, error]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    mutate(profileData); // send data via React Query
+    
+    const cleanFormData = getFormDataForSubmission();
+    
+    const requiredFields = ['age', 'height', 'weight', 'gender', 'activityLevel', 'fitnessGoal'];
+    const missingFields = requiredFields.filter(field => !cleanFormData[field]);
+    
+    if (missingFields.length > 0) {
+      alert(`Please fill in required fields: ${missingFields.join(', ')}`);
+      return;
+    }
+
+    mutate(cleanFormData);
   };
 
   return (
@@ -108,7 +132,7 @@ export default function ProfileSetup({ className, ...props }) {
             <h2 className="text-xl font-semibold">Basic Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="age">Age</Label>
+                <Label htmlFor="age">Age *</Label>
                 <Input
                   id="age"
                   type="number"
@@ -121,7 +145,7 @@ export default function ProfileSetup({ className, ...props }) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="height">Height (cm)</Label>
+                <Label htmlFor="height">Height (cm) *</Label>
                 <Input
                   id="height"
                   type="number"
@@ -134,7 +158,7 @@ export default function ProfileSetup({ className, ...props }) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="weight">Weight (kg)</Label>
+                <Label htmlFor="weight">Weight (kg) *</Label>
                 <Input
                   id="weight"
                   type="number"
@@ -149,7 +173,7 @@ export default function ProfileSetup({ className, ...props }) {
 
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
-                <Label>Gender</Label>
+                <Label>Gender *</Label>
                 <Select
                   value={profileData.gender}
                   onValueChange={(value) => handleSelectChange("gender", value)}
@@ -176,7 +200,7 @@ export default function ProfileSetup({ className, ...props }) {
 
             {/* Activity Level */}
             <div className="space-y-2">
-              <Label>Activity Level</Label>
+              <Label>Activity Level *</Label>
               <Select
                 value={profileData.activityLevel}
                 onValueChange={(value) =>
@@ -208,7 +232,7 @@ export default function ProfileSetup({ className, ...props }) {
 
             {/* Fitness Goal */}
             <div className="space-y-2">
-              <Label>Fitness Goal</Label>
+              <Label>Fitness Goal *</Label>
               <Select
                 value={profileData.fitnessGoal}
                 onValueChange={(value) =>
@@ -224,10 +248,6 @@ export default function ProfileSetup({ className, ...props }) {
                   <SelectItem value="weight-maintain">
                     Maintain Weight
                   </SelectItem>
-                  {/* <SelectItem value="build-muscle">Build Muscle</SelectItem> */}
-                  {/* <SelectItem value="improve-endurance">
-                    Improve Endurance
-                  </SelectItem> */}
                 </SelectContent>
               </Select>
             </div>
@@ -443,7 +463,6 @@ export default function ProfileSetup({ className, ...props }) {
                 </Select>
               </div>
 
-              {/* New: State/Region Selection */}
               <div className="space-y-2">
                 <Label>Preferred Cuisine Region</Label>
                 <Select
@@ -501,13 +520,6 @@ export default function ProfileSetup({ className, ...props }) {
               : " Generate My Personalized Meal Plan"}
           </Button>
         </div>
-
-        {/* <div className="text-center text-sm">
-          Want to adjust your preferences later?{" "}
-          <Link to="/profile" className="underline underline-offset-4">
-            Update in Profile
-          </Link>
-        </div> */}
       </form>
     </div>
   );

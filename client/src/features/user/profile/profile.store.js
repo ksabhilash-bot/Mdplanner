@@ -1,38 +1,6 @@
-// import { create } from "zustand";
-
-// // Set is a function to update store's state
-// export const useProfileStore = create((set) => ({
-//   // Setting the initial state
-//   profileData: {
-//     age: "",
-//     height: "",
-//     weight: "",
-//     gender: "",
-//     activityLevel: "",
-//     fitnessGoal: "",
-//    targetWeight: "",
-//     dietPreference: "",
-//     foodAllergies: [],
-//     otherAllergies: "",
-//     medicalConditions: [],
-//     otherMedicalConditions: "",
-//     mealFrequency: "",
-//     planType: "",
-//     duration: "",
-//   },
-
-//   // Function to update the proile data state
-//   setProfileData: (data) => {
-//     set((state) => ({
-//       profileData: { ...state.profileData, ...data },
-//     }));
-//   },
-// }));
-
-// profile.store.js
 import { create } from "zustand";
 
-export const useProfileStore = create((set) => ({
+export const useProfileStore = create((set, get) => ({
   // Default values for development
   profileData: {
     // Section 1: Basic Information
@@ -68,6 +36,36 @@ export const useProfileStore = create((set) => ({
       profileData: { ...state.profileData, ...update },
     })),
 
-  // Replace entire profile data (e.g., fetched from backend)
-  // setFullProfileData: (data) => set({ profileData: data }),
+  // Fixed getFormDataForSubmission function
+  getFormDataForSubmission: () => {
+    const state = get();
+    const { profileData } = state;
+    const allowedFields = [
+      "age",
+      "height",
+      "weight",
+      "gender",
+      "activityLevel",
+      "fitnessGoal",
+      "targetWeight",
+      "dietPreference",
+      "foodAllergies",
+      "otherAllergies",
+      "medicalConditions",
+      "otherMedicalConditions",
+      "mealFrequency",
+      "planType",
+      "cuisineRegion",
+      "duration",
+    ];
+
+    const cleanData = {};
+    allowedFields.forEach((field) => {
+      if (profileData.hasOwnProperty(field)) {
+        cleanData[field] = profileData[field];
+      }
+    });
+
+    return cleanData;
+  },
 }));

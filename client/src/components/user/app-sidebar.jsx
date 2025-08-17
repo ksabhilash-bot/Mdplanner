@@ -49,8 +49,8 @@ const data = {
       icon: Utensils,
     },
     // {
-    //   title: "Food Tracking",
-    //   url: "/user/trackfood",
+    //   title: "Customize",
+    //   url: "/user/editmealplan",
     //   icon: Calendar,
     // },
     // {
