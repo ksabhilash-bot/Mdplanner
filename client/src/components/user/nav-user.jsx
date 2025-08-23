@@ -34,6 +34,16 @@ export function NavUser({ user }) {
   const { user: currentUser, isAuthenticated, logout } = useAuthStore();
   const navigate = useNavigate();
 
+  // Get first two letters of user's name for avatar fallback
+  const getAvatarFallback = () => {
+    if (!currentUser?.name) return "GU";
+    const names = currentUser.name.split(" ");
+    if (names.length === 1) {
+      return names[0].substring(0, 2).toUpperCase();
+    }
+    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+  };
+
   // useEffect(() => {
   //   console.log(currentUser);
   // }, []);
@@ -55,7 +65,10 @@ export function NavUser({ user }) {
                   src={user.avatar}
                   alt={currentUser?.name || "Guest"}
                 />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">
+                  {" "}
+                  {getAvatarFallback()}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
@@ -81,7 +94,10 @@ export function NavUser({ user }) {
                     src={user.avatar}
                     alt={currentUser?.name || "Guest"}
                   />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {" "}
+                    {getAvatarFallback()}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">

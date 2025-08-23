@@ -26,12 +26,18 @@ export const signUpService = async ({ name, email, password }) => {
 };
 
 export const loginService = async ({ email, password }) => {
-  const user = await User.findOne({ email });
+  // Find user and exclude password from the query result
+  const user = await User.findOne({ email }).select("-password");
+  console.log("User found (without password):", user);
+
   if (!user) {
     throw new Error("User not found");
   }
 
-  const matchedPassword = await bcrypt.compare(password, user.password);
+  // We need to get the password separately for comparison
+  const userWithPassword = await User.findOne({ email }).select("password");
+  const matchedPassword = await bcrypt.compare(password, userWithPassword.password);
+  
   if (!matchedPassword) {
     throw new Error("Incorrect password");
   }
@@ -45,6 +51,10 @@ export const loginService = async ({ email, password }) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      isProfileComplete: user.isProfileComplete, // ✅ Include this crucial field
+      // Include any other fields you need on the frontend
+      profile: user.profile,
+      mealPlans: user.mealPlans,
     },
   };
 };

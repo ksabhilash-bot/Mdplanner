@@ -157,7 +157,7 @@ export default function UserProfilePage() {
             </p> */}
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          {/* <div className="flex flex-wrap gap-2">
             <Button
               onClick={() => navigate("/profile/edit")}
               variant="outline"
@@ -165,10 +165,10 @@ export default function UserProfilePage() {
             >
               Edit Profile
             </Button>
-            {/* <Button onClick={() => navigate("/user/meal-plan")} size="sm">
+            <Button onClick={() => navigate("/user/meal-plan")} size="sm">
               View Meal Plan
-            </Button> */}
-          </div>
+            </Button>
+          </div> */}
         </div>
 
         {/* Profile incomplete warning */}

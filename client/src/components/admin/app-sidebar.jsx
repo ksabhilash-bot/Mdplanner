@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
 import {
   IconChartBar,
   IconDashboard,
@@ -33,40 +34,40 @@ const data = {
   },
   navMain: [
     {
-      title: "Overview",
-      url: "/admin/overview",
+      title: "Dashboard",
+      url: "/admin/admindashboard", // Fixed: matches your AppRouter route
       icon: IconDashboard,
     },
     {
       title: "User Management",
-      url: "/admin/users",
+      url: "/admin/usermanagement",
       icon: IconUsers,
     },
-    {
-      title: "Meal Database",
-      url: "/admin/meals",
-      icon: IconDatabase,
-    },
-    {
-      title: "Analytics",
-      url: "/admin/analytics",
-      icon: IconChartBar,
-    },
-    {
-      title: "Notifications",
-      url: "/admin/notifications",
-      icon: IconNotification,
-    },
-    {
-      title: "Reports",
-      url: "/admin/reports",
-      icon: IconReport,
-    },
-     {
-      title: "Settings",
-      url: "/admin/settings",
-      icon: IconSettings,
-    },
+    // {
+    //   title: "Meal Database",
+    //   url: "/admin/meals",
+    //   icon: IconDatabase,
+    // },
+    // {
+    //   title: "Analytics",
+    //   url: "/admin/analytics",
+    //   icon: IconChartBar,
+    // },
+    // {
+    //   title: "Notifications",
+    //   url: "/admin/notifications",
+    //   icon: IconNotification,
+    // },
+    // {
+    //   title: "Reports",
+    //   url: "/admin/reports",
+    //   icon: IconReport,
+    // },
+    // {
+    //   title: "Settings",
+    //   url: "/admin/settings",
+    //   icon: IconSettings,
+    // },
   ],
   // navSecondary: [
   //   {
@@ -74,16 +75,16 @@ const data = {
   //     url: "/admin/settings",
   //     icon: IconSettings,
   //   },
-    // {
-    //   title: "Get Help",
-    //   url: "/admin/help",
-    //   icon: IconHelp,
-    // },
-    // {
-    //   title: "Search",
-    //   url: "/admin/search",
-    //   icon: IconSearch,
-    // },
+  //   {
+  //     title: "Get Help",
+  //     url: "/admin/help",
+  //     icon: IconHelp,
+  //   },
+  //   {
+  //     title: "Search",
+  //     url: "/admin/search",
+  //     icon: IconSearch,
+  //   },
   // ],
 };
 
@@ -97,19 +98,12 @@ export function AppSidebar({ ...props }) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              {/* <a href="/admin" className="flex items-center gap-1.5">
-                <Brain className="h-5 w-5 text-primary" />
-                <span className="text-lg font-semibold text-primary">
-                  MdPlanner
-                </span>
-              </a> */}
-              <a href="/admin" className="flex items-center gap-2 px-1">
-                <Shield className="h-5 w-5 text-primary" />{" "}
-                {/* Shield icon for admin */}
+              <Link to="/admindashboard" className="flex items-center gap-2 px-1">
+                <Shield className="h-5 w-5 text-primary" />
                 <span className="text-lg font-semibold text-primary">
                   MdPlanner Admin
                 </span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

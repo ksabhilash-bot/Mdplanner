@@ -27,6 +27,7 @@ export const login = async (req, res) => {
   try {
     const { token, user } = await loginService(req.body);
     console.log("token to be set in cookie:", token);
+    console.log("sldfjaldf:", user);
 
     res.cookie("token", token, {
       httpOnly: true,

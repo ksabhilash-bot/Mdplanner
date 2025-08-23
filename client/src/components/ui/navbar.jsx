@@ -89,7 +89,7 @@ export default function Navbar() {
                       <Link
                         to={
                           user.role === "admin"
-                            ? "/admindashboard"
+                            ? "/admin/admindashboard"
                             : user.isProfileComplete === false
                             ? "/user/profilesetup"
                             : "/user/userdashboard"

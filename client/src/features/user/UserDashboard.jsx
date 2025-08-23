@@ -317,14 +317,14 @@ export default function NutritionDashboard() {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Today's Meals</CardTitle>
-                <Button
+                {/* <Button
                   variant="outline"
                   size="sm"
                   onClick={() => navigate("/meal-plan")}
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Meal
-                </Button>
+                </Button> */}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -383,7 +383,7 @@ export default function NutritionDashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle>Quick Notes</CardTitle>
             </CardHeader>
@@ -395,7 +395,7 @@ export default function NutritionDashboard() {
                 onChange={(e) => setNotes(e.target.value)}
               />
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </div>
     </div>

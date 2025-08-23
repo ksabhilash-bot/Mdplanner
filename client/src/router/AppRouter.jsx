@@ -17,6 +17,7 @@ import Reports from "@/features/user/Reports";
 
 // Admin Pages
 import AdminDashboard from "@/features/admin/AdminDashboard";
+import UserManagement from "@/features/admin/UserManagement";
 
 // Layouts
 import UserLayout from "@/layouts/UserLayout";
@@ -97,10 +98,18 @@ export default function AppRouter() {
       {/* Admin routes */}
       <Route element={<AdminLayout />}>
         <Route
-          path="/admindashboard"
+          path="/admin/admindashboard"
           element={
             <ProtectedRoute adminOnly>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/usermanagement"
+          element={
+            <ProtectedRoute adminOnly>
+              <UserManagement />
             </ProtectedRoute>
           }
         />
