@@ -24,7 +24,7 @@ export const useProfileStore = create((set, get) => ({
     otherMedicalConditions: "",
 
     // Section 5: Meal Plan Preferences
-    mealFrequency: "3",
+    mealFrequency: "4",
     planType: "flexible",
     cuisineRegion: "kerala",
     duration: "3-day",

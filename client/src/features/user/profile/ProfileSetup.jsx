@@ -23,7 +23,8 @@ import { useMealPlanStore } from "../meal/mealPlan.store";
 
 export default function ProfileSetup({ className, ...props }) {
   const navigate = useNavigate();
-  const { profileData, setProfileData, getFormDataForSubmission } = useProfileStore();
+  const { profileData, setProfileData, getFormDataForSubmission } =
+    useProfileStore();
   const { setUser } = useAuthStore();
   const { setMealPlan } = useMealPlanStore();
 
@@ -71,16 +72,16 @@ export default function ProfileSetup({ className, ...props }) {
         setUser(data.data.user);
       } else {
         // Manually update the user's profile completion status if backend doesn't return updated user
-        setUser({ 
-          ...useAuthStore.getState().user, 
-          isProfileComplete: true 
+        setUser({
+          ...useAuthStore.getState().user,
+          isProfileComplete: true,
         });
       }
-      
+
       if (data.data?.mealPlan) {
         setMealPlan(data.data.mealPlan);
       }
-      
+
       navigate("/user/userdashboard");
     }
   }, [isSuccess, data, setUser, setMealPlan, navigate]);
@@ -95,14 +96,23 @@ export default function ProfileSetup({ className, ...props }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const cleanFormData = getFormDataForSubmission();
-    
-    const requiredFields = ['age', 'height', 'weight', 'gender', 'activityLevel', 'fitnessGoal'];
-    const missingFields = requiredFields.filter(field => !cleanFormData[field]);
-    
+
+    const requiredFields = [
+      "age",
+      "height",
+      "weight",
+      "gender",
+      "activityLevel",
+      "fitnessGoal",
+    ];
+    const missingFields = requiredFields.filter(
+      (field) => !cleanFormData[field]
+    );
+
     if (missingFields.length > 0) {
-      alert(`Please fill in required fields: ${missingFields.join(', ')}`);
+      alert(`Please fill in required fields: ${missingFields.join(", ")}`);
       return;
     }
 
@@ -120,10 +130,10 @@ export default function ProfileSetup({ className, ...props }) {
         {...props}
       >
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-2xl font-bold">Personalize Your Meal Plan</h1>
-          <p className="text-muted-foreground text-sm text-balance">
+          <h1 className="text-2xl font-bold">Personalize Your Diet</h1>
+          {/* <p className="text-muted-foreground text-sm text-balance">
             Help us create the perfect meal plan tailored just for you
-          </p>
+          </p> */}
         </div>
 
         <div className="grid gap-6">
@@ -285,17 +295,17 @@ export default function ProfileSetup({ className, ...props }) {
                 <div className="flex flex-wrap gap-2">
                   {[
                     "Vegetarian",
-                    "Vegan",
                     "Non-Vegetarian",
-                    "Eggetarian",
-                    "Keto",
-                    "Paleo",
-                    "Mediterranean",
-                    "Low-Carb",
-                    "Gluten-Free",
-                    "Dairy-Free",
-                    "Pescatarian",
-                    "Flexitarian",
+                    // "Vegan",
+                    // "Eggetarian",
+                    // "Keto",
+                    // "Paleo",
+                    // "Mediterranean",
+                    // "Low-Carb",
+                    // "Gluten-Free",
+                    // "Dairy-Free",
+                    // "Pescatarian",
+                    // "Flexitarian",
                   ].map((diet) => (
                     <Button
                       key={diet}
@@ -314,7 +324,7 @@ export default function ProfileSetup({ className, ...props }) {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Food Allergies/Intolerances</Label>
                 <div className="flex flex-wrap gap-2">
                   {[
@@ -346,9 +356,9 @@ export default function ProfileSetup({ className, ...props }) {
                     </Button>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="otherAllergies">Other Allergies</Label>
                 <Textarea
                   id="otherAllergies"
@@ -357,12 +367,12 @@ export default function ProfileSetup({ className, ...props }) {
                   value={profileData.otherAllergies}
                   onChange={handleChange}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
 
           {/* Section 4: Health Information */}
-          <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
+          {/* <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
             <h2 className="text-xl font-semibold">Health Information</h2>
 
             <div className="space-y-4">
@@ -411,7 +421,7 @@ export default function ProfileSetup({ className, ...props }) {
                 />
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Section 5: Meal Plan Preferences */}
           <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
@@ -437,7 +447,7 @@ export default function ProfileSetup({ className, ...props }) {
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Plan Type</Label>
                 <Select
                   value={profileData.planType}
@@ -461,9 +471,9 @@ export default function ProfileSetup({ className, ...props }) {
                     <SelectItem value="custom">Custom Schedule</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Preferred Cuisine Region</Label>
                 <Select
                   value={profileData.cuisineRegion}
@@ -488,7 +498,7 @@ export default function ProfileSetup({ className, ...props }) {
                     <SelectItem value="no-preference">No Preference</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
 
               <div className="space-y-2">
                 <Label>Plan Duration</Label>
@@ -515,9 +525,7 @@ export default function ProfileSetup({ className, ...props }) {
           </div>
 
           <Button type="submit" className="w-full mt-2" disabled={isPending}>
-            {isPending
-              ? "Generating..."
-              : " Generate My Personalized Meal Plan"}
+            {isPending ? "Creating..." : "Create my profile"}
           </Button>
         </div>
       </form>

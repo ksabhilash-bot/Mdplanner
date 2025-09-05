@@ -44,7 +44,7 @@ const data = {
       icon: User,
     },
     {
-      title: "Meal Plan",
+      title: "Track Meal",
       url: "/user/mealplan",
       icon: Utensils,
     },

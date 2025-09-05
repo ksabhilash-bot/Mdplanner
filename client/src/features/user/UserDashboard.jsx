@@ -1,14 +1,12 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { format, parseISO, isSameDay } from "date-fns";
+import { format, subDays, isBefore, isAfter, addDays } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
-import { Check, Edit, Plus, TrendingUp, Clock, Heart } from "lucide-react";
+import { TrendingUp, Clock, Check, Activity, Droplets } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchMealPlan } from "../user/meal/meal.api";
 import { FullPageSpinner } from "@/components/full-page-spinner";
-import { useEffect, useState } from "react";
-import { useMealPlanStore } from "../user/meal/mealPlan.store";
+import { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -19,99 +17,156 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import {
+  getDailyNutrition,
+  getNutritionHistory,
+  getUserNutritionGoals,
+} from "./nutrition.api";
+
+import { useAuthStore } from "@/features/auth/auth.store";
+import { useProfileStore } from "../user/profile/profile.store";
+import { fetchUserProfile } from "../user/profile/profile.api";
 
 export default function NutritionDashboard() {
-  const navigate = useNavigate();
-  const { mealPlan, setMealPlan } = useMealPlanStore();
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [mood, setMood] = useState(
-    localStorage.getItem("nutritionDashboardMood") || ""
-  );
-  const [notes, setNotes] = useState(
-    localStorage.getItem("nutritionDashboardNotes") || ""
-  );
+  const { user, setUser } = useAuthStore();
+  const { profileData, setProfileData } = useProfileStore();
 
-  // Fetch meal plan
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["userMealPlan"],
-    queryFn: fetchMealPlan,
-    select: (data) => data?.mealPlan,
+  // Fetch fresh data
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: fetchUserProfile,
   });
 
-  // Update store when data is fetched
+  // Update stores when data is fetched
   useEffect(() => {
     if (data) {
-      setMealPlan(data);
+      setUser(data.user);
+      setProfileData(data.profile);
     }
-  }, [data, setMealPlan]);
+  }, [data, setUser, setProfileData]);
 
-  // Save mood and notes to localStorage when they change
+  // Handle error case
   useEffect(() => {
-    localStorage.setItem("nutritionDashboardMood", mood);
-  }, [mood]);
+    if (isError) {
+      console.error("fetchUserProfile error:", error);
+    }
+  }, [isError, error]);
 
-  useEffect(() => {
-    localStorage.setItem("nutritionDashboardNotes", notes);
-  }, [notes]);
+  const navigate = useNavigate();
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  // Find meal for the selected date
-  const dayMeal = (mealPlan?.meals || []).find((day) => {
-    if (!day?.date) return false;
-    const dayDate = parseISO(day.date);
-    return !isNaN(dayDate.getTime()) && isSameDay(dayDate, selectedDate);
+  // First, fetch user nutrition goals
+  const { data: nutritionGoalsData, isLoading: goalsLoading } = useQuery({
+    queryKey: ["nutritionGoals"],
+    queryFn: getUserNutritionGoals,
   });
 
-  // Calculate daily progress
+  const nutritionGoals = nutritionGoalsData;
+
+  // Then fetch daily nutrition data for the selected date
+  const { data: dailyNutrition, isLoading: dailyLoading } = useQuery({
+    queryKey: ["dailyNutrition", format(selectedDate, "yyyy-MM-dd")],
+    queryFn: () => getDailyNutrition(format(selectedDate, "yyyy-MM-dd")),
+    enabled: !!nutritionGoals, // Only fetch after we have the goals
+  });
+
+  // Fetch nutrition history for charts
+  const { data: nutritionHistory, isLoading: historyLoading } = useQuery({
+    queryKey: ["nutritionHistory"],
+    queryFn: getNutritionHistory,
+    enabled: !!nutritionGoals, // Only fetch after we have the goals
+  });
+
+  // Check if selected date is within goal period
+  const isDateInGoalPeriod = (date) => {
+    if (!nutritionGoals) return true;
+
+    const startDate = new Date(nutritionGoals.startDate);
+    const endDate = new Date(nutritionGoals.endDate);
+
+    return !isBefore(date, startDate) && !isAfter(date, endDate);
+  };
+
+  // Calculate daily progress from tracked meals
   const getDailyProgress = () => {
-    if (!dayMeal) return { mealsCompleted: 0, caloriesConsumed: 0 };
+    if (!dailyNutrition) return { mealsCompleted: 0, caloriesConsumed: 0 };
 
-    let mealsCompleted = 0;
-    let caloriesConsumed = 0;
-
-    ["breakfast", "lunch", "dinner"].forEach((mealType) => {
-      if (dayMeal[mealType]?.eaten) {
-        mealsCompleted++;
-        caloriesConsumed += dayMeal[mealType]?.calories || 0;
-      }
-    });
+    const mealsCompleted = dailyNutrition.meals
+      ? dailyNutrition.meals.length
+      : 0;
+    const caloriesConsumed = dailyNutrition.dailyTotals.totalCalories || 0;
 
     return { mealsCompleted, caloriesConsumed };
   };
 
-  // Generate chart data from meal plan using actual dates
+  // Generate chart data from nutrition history or create data for goal period
   const getChartData = () => {
-    if (!mealPlan?.meals) return [];
+    const targetCalories = nutritionGoals?.calories || 2000;
 
-    return mealPlan.meals.map((day) => {
-      const dayDate = day.date ? parseISO(day.date) : new Date();
-      const dayName = format(dayDate, "EEE"); // Short day name (Mon, Tue, etc.)
-      const dateLabel = format(dayDate, "MMM d"); // Month and day (Jan 1)
+    // If we have nutrition history data, use it
+    if (nutritionHistory && nutritionHistory.length > 0) {
+      return nutritionHistory.map((day) => {
+        const dayDate = day.date ? new Date(day.date) : new Date();
+        const dayName = format(dayDate, "EEE");
+        const dateLabel = format(dayDate, "MMM d");
 
-      const consumedCalories = ["breakfast", "lunch", "dinner"].reduce(
-        (total, mealType) =>
-          total + (day[mealType]?.eaten ? day[mealType]?.calories || 0 : 0),
-        0
-      );
+        return {
+          name: `${dayName} ${dateLabel}`,
+          shortName: dayName,
+          date: dateLabel,
+          consumed: day.totalCalories || 0,
+          target: targetCalories,
+        };
+      });
+    }
 
+    // If no history exists, return data for the goal period
+    if (nutritionGoals) {
+      const startDate = new Date(nutritionGoals.startDate);
+      const endDate = new Date(nutritionGoals.endDate);
+      const daysInPeriod =
+        Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+      return Array.from({ length: daysInPeriod }, (_, i) => {
+        const date = addDays(startDate, i);
+        return {
+          name: format(date, "EEE MMM d"),
+          shortName: format(date, "EEE"),
+          date: format(date, "MMM d"),
+          consumed: 0,
+          target: targetCalories,
+        };
+      });
+    }
+
+    // Fallback: return empty data for the last 7 days
+    return Array.from({ length: 7 }, (_, i) => {
+      const date = subDays(new Date(), 6 - i);
       return {
-        name: `${dayName} ${dateLabel}`, // Combine day name and date
-        shortName: dayName, // Just the day name
-        date: dateLabel, // Just the date
-        consumed: consumedCalories,
-        target: mealPlan.targetCalories || 2000,
+        name: format(date, "EEE MMM d"),
+        shortName: format(date, "EEE"),
+        date: format(date, "MMM d"),
+        consumed: 0,
+        target: targetCalories,
       };
     });
   };
 
   const chartData = getChartData();
   const { mealsCompleted, caloriesConsumed } = getDailyProgress();
+  const targetCalories = nutritionGoals?.calories || 2000;
+  const goalStartDate = nutritionGoals
+    ? new Date(nutritionGoals.startDate)
+    : null;
+  const goalEndDate = nutritionGoals ? new Date(nutritionGoals.endDate) : null;
 
-  if (isLoading) return <FullPageSpinner />;
+  if (goalsLoading || dailyLoading || historyLoading)
+    return <FullPageSpinner />;
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Calendar & Summary */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column - Calendar and Chart */}
         <div className="space-y-6">
           <Card>
             <CardHeader>
@@ -126,132 +181,36 @@ export default function NutritionDashboard() {
                   variant="outline"
                   size="sm"
                   onClick={() => setSelectedDate(new Date())}
+                  disabled={!isDateInGoalPeriod(new Date())}
                 >
                   Today
                 </Button>
               </div>
+              {nutritionGoals && (
+                <div className="mb-3 text-sm text-gray-600">
+                  <p>
+                    Goal Period: {format(goalStartDate, "MMM d")} -{" "}
+                    {format(goalEndDate, "MMM d, yyyy")}
+                  </p>
+                </div>
+              )}
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={(date) => date && setSelectedDate(date)}
                 className="rounded-md border p-2"
-                disabled={{
-                  before: parseISO(
-                    mealPlan?.startDate || new Date().toISOString()
-                  ),
-                  after: parseISO(
-                    mealPlan?.endDate || new Date().toISOString()
-                  ),
-                }}
+                disabled={(date) => !isDateInGoalPeriod(date)}
               />
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() => navigate("/user/profile")}
-              >
-                <Check className="mr-2 h-4 w-4" />
-                View Profile
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() => navigate("/user/meal-plan")}
-              >
-                <Edit className="mr-2 h-4 w-4" />
-                View Full Meal Plan
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Middle Column - Stats */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Today's Progress</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-blue-800">
-                      Calories
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {caloriesConsumed}
-                    </p>
-                    <p className="text-xs text-blue-700">
-                      / {mealPlan?.targetCalories || 0}
-                    </p>
-                  </div>
-                  <TrendingUp className="w-6 h-6 text-blue-600" />
-                </div>
-              </div>
-
-              <div className="bg-green-50 p-4 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-green-800">Meals</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {mealsCompleted}
-                    </p>
-                    <p className="text-xs text-green-700">/ 3</p>
-                  </div>
-                  <Clock className="w-6 h-6 text-green-600" />
-                </div>
-              </div>
-
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-purple-800">Plan</p>
-                    <p className="text-xl font-bold text-gray-900">
-                      #{mealPlan?.planNo || "--"}
-                    </p>
-                  </div>
-                  <Check className="w-6 h-6 text-purple-600" />
-                </div>
-              </div>
-
-              <div className="bg-pink-50 p-4 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-pink-800">Mood</p>
-                    <select
-                      className="text-sm bg-transparent border-none focus:outline-none text-gray-900"
-                      value={mood}
-                      onChange={(e) => setMood(e.target.value)}
-                    >
-                      <option value="">Select mood</option>
-                      <option value="😊 Great">😊 Great</option>
-                      <option value="🙂 Good">🙂 Good</option>
-                      <option value="😐 Okay">😐 Okay</option>
-                    </select>
-                  </div>
-                  <Heart className="w-6 h-6 text-pink-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Calorie Progress</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {mealPlan?.startDate &&
-                  format(parseISO(mealPlan.startDate), "MMM d")}{" "}
-                -
-                {mealPlan?.endDate &&
-                  format(parseISO(mealPlan.endDate), "MMM d, yyyy")}
-              </p>
+              <CardTitle>
+                {nutritionGoals
+                  ? "Calorie Progress (Goal Period)"
+                  : "Calorie Progress (Last 7 Days)"}
+              </CardTitle>
             </CardHeader>
             <CardContent className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -263,7 +222,6 @@ export default function NutritionDashboard() {
                   <XAxis
                     dataKey="name"
                     tickFormatter={(value) => {
-                      // Display just the short day name if space is limited
                       const item = chartData.find(
                         (item) => item.name === value
                       );
@@ -307,95 +265,168 @@ export default function NutritionDashboard() {
                   />
                 </LineChart>
               </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right Column - Today's Meals */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Today's Meals</CardTitle>
-                {/* <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate("/meal-plan")}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Meal
-                </Button> */}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {dayMeal ? (
-                ["breakfast", "lunch", "dinner"].map((mealType) => (
-                  <div
-                    key={mealType}
-                    className={`p-4 rounded-lg border ${
-                      dayMeal[mealType]?.eaten
-                        ? "bg-green-50 border-green-200"
-                        : "bg-white"
-                    }`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium capitalize">{mealType}</h3>
-                        <p
-                          className={`text-sm ${
-                            dayMeal[mealType]?.eaten
-                              ? "line-through text-gray-500"
-                              : "text-gray-800"
-                          }`}
-                        >
-                          {dayMeal[mealType]?.meal || "Not specified"}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {dayMeal[mealType]?.calories || "--"} calories
-                        </p>
-                      </div>
-                      {dayMeal[mealType]?.eaten ? (
-                        <Check className="h-5 w-5 text-green-500" />
-                      ) : (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => navigate("/meal-plan")}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No meals planned for today</p>
-                  <Button
-                    variant="outline"
-                    className="mt-4"
-                    onClick={() => navigate("/meal-plan")}
-                  >
-                    Create Meal Plan
-                  </Button>
+              {(!nutritionHistory || nutritionHistory.length === 0) && (
+                <div className="text-center mt-2 text-sm text-gray-500">
+                  No nutrition history yet. Start tracking meals to see your
+                  progress!
                 </div>
               )}
             </CardContent>
           </Card>
+        </div>
 
-          {/* <Card>
-            <CardHeader>
-              <CardTitle>Quick Notes</CardTitle>
+        {/* Right Column - Nutrition Stats */}
+        <div className="flex flex-col gap-4 h-full">
+          {/* Calories Card */}
+          <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 flex-1">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-blue-800">
+                <Activity className="w-5 h-5" />
+                Calories
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <textarea
-                className="w-full p-3 border rounded-lg h-24"
-                placeholder="Add notes about your day..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-900 mb-2">
+                  {caloriesConsumed}
+                  <span className="text-lg font-normal text-blue-700">
+                    {" "}
+                    / {targetCalories}
+                  </span>
+                </div>
+                <div className="w-full bg-blue-200 rounded-full h-2.5">
+                  <div
+                    className="bg-blue-600 h-2.5 rounded-full"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        (caloriesConsumed / targetCalories) * 100
+                      )}%`,
+                    }}
+                  ></div>
+                </div>
+                <p className="text-sm text-blue-700 mt-2">
+                  {caloriesConsumed >= targetCalories
+                    ? "Goal reached! 🎉"
+                    : `${targetCalories - caloriesConsumed} calories remaining`}
+                </p>
+              </div>
             </CardContent>
-          </Card> */}
+          </Card>
+
+          {/* Meals Card */}
+          <Card className="bg-green-50 border border-green-200 flex-1">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-green-800">
+                <Clock className="w-5 h-5" />
+                Meals
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-900 mb-2">
+                  {mealsCompleted}
+                  <span className="text-lg font-normal text-green-700">
+                    {" "}
+                    / {profileData?.mealFrequency || 3}
+                  </span>
+                </div>
+                <div className="w-full bg-green-200 rounded-full h-2.5">
+                  <div
+                    className="bg-green-600 h-2.5 rounded-full"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        (mealsCompleted / (profileData?.mealFrequency || 3)) *
+                          100
+                      )}%`,
+                    }}
+                  ></div>
+                </div>
+                <p className="text-sm text-green-700 mt-2">
+                  {mealsCompleted >= (profileData?.mealFrequency || 3)
+                    ? "All meals tracked! 🎉"
+                    : `${
+                        (profileData?.mealFrequency || 3) - mealsCompleted
+                      } meals remaining`}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Nutrition Progress Grid */}
+          <Card className="flex-1">
+            <CardHeader>
+              <CardTitle>Macronutrients</CardTitle>
+            </CardHeader>
+            <CardContent className="h-full">
+              <div className="grid grid-cols-2 gap-3 h-full">
+                <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
+                  <div className="flex items-center justify-between h-full">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-purple-800">
+                        Protein
+                      </p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {dailyNutrition?.dailyTotals?.totalProtein || 0}g
+                      </p>
+                      <p className="text-xs text-purple-700">
+                        / {nutritionGoals?.protein || 0}g
+                      </p>
+                    </div>
+                    <Check className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                  </div>
+                </div>
+
+                <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                  <div className="flex items-center justify-between h-full">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-orange-800">
+                        Carbs
+                      </p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {dailyNutrition?.dailyTotals?.totalCarbs || 0}g
+                      </p>
+                      <p className="text-xs text-orange-700">
+                        / {nutritionGoals?.carbs || 0}g
+                      </p>
+                    </div>
+                    <TrendingUp className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                  </div>
+                </div>
+
+                <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                  <div className="flex items-center justify-between h-full">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-red-800">Fat</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {dailyNutrition?.dailyTotals?.totalFat || 0}g
+                      </p>
+                      <p className="text-xs text-red-700">
+                        / {nutritionGoals?.fat || 0}g
+                      </p>
+                    </div>
+                    <Droplets className="w-5 h-5 text-red-600 flex-shrink-0" />
+                  </div>
+                </div>
+
+                <div className="bg-pink-50 p-3 rounded-lg border border-pink-200">
+                  <div className="flex items-center justify-between h-full">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-pink-800">Fiber</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {dailyNutrition?.dailyTotals?.totalFiber || 0}g
+                      </p>
+                      <p className="text-xs text-pink-700">
+                        / {nutritionGoals?.fiber || 0}g
+                      </p>
+                    </div>
+                    <Activity className="w-5 h-5 text-pink-600 flex-shrink-0" />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

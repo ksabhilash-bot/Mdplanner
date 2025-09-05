@@ -7,7 +7,7 @@ import { calculateMacros } from "../utils/calculateMacros.js";
 import User from "../models/User.js";
 
 export const generateMealPlan = async (user) => {
-  console.log("gnerate");
+  console.log("generate");
 
   const ai = new GoogleGenAI({
     apiKey: "AIzaSyBZNbCee_ngv7ZtGk6XeMAmOuCo3snyKWE",
@@ -28,11 +28,11 @@ export const generateMealPlan = async (user) => {
   const targetCalories = await adjustCaloriesForGoal(tdee, user.fitnessGoal);
   console.log("target calories: ", targetCalories);
 
-  // 4. Get macros
-  const macros = await calculateMacros(targetCalories, user.fitnessGoal);
+  // 4. Get macros (now includes fiber)
+  const macros = await calculateMacros(targetCalories, user.fitnessGoal, user);
   console.log(macros);
 
-  // 5. Split calories and macors per meal
+  // 5. Split calories, macros, and fiber per meal
   const mealsPerDay = parseInt(user.mealFrequency) || 3; // default to 3 meals
 
   const perMeal = {
@@ -40,6 +40,7 @@ export const generateMealPlan = async (user) => {
     protein: Math.round(macros.protein / mealsPerDay),
     carbs: Math.round(macros.carbs / mealsPerDay),
     fat: Math.round(macros.fat / mealsPerDay),
+    fiber: Math.round(macros.fiber / mealsPerDay),
   };
 
   // 6. Generate Meal Plan using Gemini
