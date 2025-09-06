@@ -1,17 +1,21 @@
 import axiosInstance from "@/lib/axiosInstance";
 
 // Existing functions from your code
-// export const fetchMealPlan = async () => {
-//   try {
-//     console.log("fetch meal plan");
-//     const response = await axiosInstance.get("/user/mealplan");
-//     console.log("edaa meal ", response.data);
-//     return response.data;
-//   } catch (error) {
-//     console.error("fetchMealPlan failed", error);
-//     throw error;
-//   }
-// };
+export const getAiFoodSuggestions = async (moodDescription) => {
+  try {
+    console.log("daa", moodDescription);
+
+    console.log("fetch food suggestions function");
+    const response = await axiosInstance.post("/user/aifoodsuggestions", {
+      moodDescription,
+    });
+    // console.log("edaa aifoodsuggestions ", response.data.foodSuggestions);
+    return response.data.foodSuggestions;
+  } catch (error) {
+    console.error("getAiFoodSuggestions failed", error);
+    throw error;
+  }
+};
 
 export const updateMealCompletion = async ({
   mealPlanId,

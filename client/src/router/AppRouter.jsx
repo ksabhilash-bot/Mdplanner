@@ -15,6 +15,8 @@ import MealPlan from "@/features/user/meal/MealPlan";
 import Progress from "@/features/user/Progress";
 import Reports from "@/features/user/Reports";
 
+import Notifications from "@/features/user/Notifications";
+
 // Admin Pages
 import AdminDashboard from "@/features/admin/AdminDashboard";
 import UserManagement from "@/features/admin/UserManagement";
@@ -23,6 +25,8 @@ import UserManagement from "@/features/admin/UserManagement";
 import UserLayout from "@/layouts/UserLayout";
 import MainLayout from "@/layouts/MainLayout";
 import AdminLayout from "@/layouts/AdminLayout";
+
+import AiSuggestions from "@/features/user/AiSuggestions";
 
 export default function AppRouter() {
   return (
@@ -66,6 +70,22 @@ export default function AppRouter() {
           element={
             <ProtectedRoute>
               <MealPlan />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/notifications"
+          element={
+            <ProtectedRoute>
+              <Notifications />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/aisuggestions"
+          element={
+            <ProtectedRoute>
+              <AiSuggestions />
             </ProtectedRoute>
           }
         />

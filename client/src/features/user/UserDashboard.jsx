@@ -3,7 +3,18 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { format, subDays, isBefore, isAfter, addDays } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
-import { TrendingUp, Clock, Check, Activity, Droplets } from "lucide-react";
+import {
+  TrendingUp,
+  Clock,
+  Check,
+  Activity,
+  Droplets,
+  Coffee,
+  Sun,
+  Moon,
+  Apple,
+  Plus,
+} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { FullPageSpinner } from "@/components/full-page-spinner";
 import { useState, useEffect } from "react";
@@ -16,6 +27,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  BarChart,
+  Bar,
 } from "recharts";
 import {
   getDailyNutrition,
@@ -61,7 +74,7 @@ export default function NutritionDashboard() {
     queryFn: getUserNutritionGoals,
   });
 
-  const nutritionGoals = nutritionGoalsData;
+  const nutritionGoals = nutritionGoalsData?.goal || nutritionGoalsData;
 
   // Then fetch daily nutrition data for the selected date
   const { data: dailyNutrition, isLoading: dailyLoading } = useQuery({
@@ -77,14 +90,24 @@ export default function NutritionDashboard() {
     enabled: !!nutritionGoals, // Only fetch after we have the goals
   });
 
-  // Check if selected date is within goal period
+  // Update the isDateInGoalPeriod function to properly handle date comparisons
   const isDateInGoalPeriod = (date) => {
     if (!nutritionGoals) return true;
 
     const startDate = new Date(nutritionGoals.startDate);
     const endDate = new Date(nutritionGoals.endDate);
 
-    return !isBefore(date, startDate) && !isAfter(date, endDate);
+    // Reset time components to compare dates only (ignore time)
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+
+    const normalizedStartDate = new Date(startDate);
+    normalizedStartDate.setHours(0, 0, 0, 0);
+
+    const normalizedEndDate = new Date(endDate);
+    normalizedEndDate.setHours(0, 0, 0, 0);
+
+    return checkDate >= normalizedStartDate && checkDate <= normalizedEndDate;
   };
 
   // Calculate daily progress from tracked meals
@@ -97,6 +120,109 @@ export default function NutritionDashboard() {
     const caloriesConsumed = dailyNutrition.dailyTotals.totalCalories || 0;
 
     return { mealsCompleted, caloriesConsumed };
+  };
+
+  //  Check if a meal type has been completed
+  const isMealCompleted = (mealType) => {
+    if (!dailyNutrition || !dailyNutrition.meals) return false;
+    return dailyNutrition.meals.some((meal) => meal.mealType === mealType);
+  };
+
+  // Get consumed values for a specific meal type
+  const getMealConsumed = (mealType) => {
+    if (!dailyNutrition || !dailyNutrition.meals) {
+      return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+    }
+
+    const meal = dailyNutrition.meals.find((m) => m.mealType === mealType);
+    return meal ? meal.totals : { calories: 0, protein: 0, carbs: 0, fat: 0 };
+  };
+
+  // Get foods for a specific meal type with quantities grouped
+  const getMealFoodsWithQuantity = (mealType) => {
+    if (!dailyNutrition || !dailyNutrition.meals) return [];
+
+    const meal = dailyNutrition.meals.find((m) => m.mealType === mealType);
+    if (!meal || !meal.foods) return [];
+
+    // Group foods by name and sum quantities
+    const foodMap = new Map();
+
+    meal.foods.forEach((food) => {
+      if (foodMap.has(food.foodName)) {
+        const existing = foodMap.get(food.foodName);
+        foodMap.set(food.foodName, {
+          ...existing,
+          quantity: existing.quantity + (food.quantity || 1),
+          calories: existing.calories + (food.calories || 0),
+        });
+      } else {
+        foodMap.set(food.foodName, {
+          foodName: food.foodName,
+          quantity: food.quantity || 1,
+          calories: food.calories || 0,
+          unit: food.unit || "serving",
+        });
+      }
+    });
+
+    return Array.from(foodMap.values());
+  };
+
+  // Get meal distribution from goals
+  const getMealDistribution = () => {
+    if (!nutritionGoals || !nutritionGoals.mealDistribution) {
+      return {
+        breakfast: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+        lunch: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+        snack: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+        dinner: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+      };
+    }
+    return nutritionGoals.mealDistribution;
+  };
+
+  // Get individual meal progress
+  const getMealProgress = () => {
+    const mealTypes = ["breakfast", "lunch", "snack", "dinner"];
+    const mealIcons = {
+      breakfast: Coffee,
+      lunch: Sun,
+      snack: Apple,
+      dinner: Moon,
+    };
+
+    return mealTypes.map((mealType) => {
+      const meal = dailyNutrition?.meals?.find((m) => m.mealType === mealType);
+      const goalCalories =
+        nutritionGoals?.mealDistribution?.[mealType]?.calories || 0;
+      const consumedCalories = meal?.totals?.calories || 0;
+      const foodCount = meal?.foods?.length || 0;
+      const isCompleted = consumedCalories > 0;
+
+      return {
+        mealType,
+        icon: mealIcons[mealType],
+        consumedCalories,
+        goalCalories,
+        foodCount,
+        isCompleted,
+        percentage:
+          goalCalories > 0 ? (consumedCalories / goalCalories) * 100 : 0,
+      };
+    });
+  };
+
+  // Generate meal-specific chart data
+  const getMealChartData = () => {
+    if (!dailyNutrition?.meals) return [];
+
+    return dailyNutrition.meals.map((meal) => ({
+      mealType: meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1),
+      consumed: meal.totals?.calories || 0,
+      target: nutritionGoals?.mealDistribution?.[meal.mealType]?.calories || 0,
+      foods: meal.foods?.length || 0,
+    }));
   };
 
   // Generate chart data from nutrition history or create data for goal period
@@ -153,12 +279,15 @@ export default function NutritionDashboard() {
   };
 
   const chartData = getChartData();
+  const mealChartData = getMealChartData();
+  const mealProgress = getMealProgress();
   const { mealsCompleted, caloriesConsumed } = getDailyProgress();
   const targetCalories = nutritionGoals?.calories || 2000;
   const goalStartDate = nutritionGoals
     ? new Date(nutritionGoals.startDate)
     : null;
   const goalEndDate = nutritionGoals ? new Date(nutritionGoals.endDate) : null;
+  const mealDistribution = getMealDistribution();
 
   if (goalsLoading || dailyLoading || historyLoading)
     return <FullPageSpinner />;
@@ -166,22 +295,24 @@ export default function NutritionDashboard() {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column - Calendar and Chart */}
+        {/* Left Column - Calendar and Charts */}
         <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Today's Date</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-17">
                 <p className="text-lg font-medium">
                   {format(selectedDate, "EEEE, MMMM d")}
                 </p>
+                {/* // Also update the Today button logic to check if today is in
+                the goal period */}
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setSelectedDate(new Date())}
-                  disabled={!isDateInGoalPeriod(new Date())}
+                  disabled={!isDateInGoalPeriod(new Date())} // Disable if today is not in goal period
                 >
                   Today
                 </Button>
@@ -201,76 +332,6 @@ export default function NutritionDashboard() {
                 className="rounded-md border p-2"
                 disabled={(date) => !isDateInGoalPeriod(date)}
               />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {nutritionGoals
-                  ? "Calorie Progress (Goal Period)"
-                  : "Calorie Progress (Last 7 Days)"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={chartData}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="name"
-                    tickFormatter={(value) => {
-                      const item = chartData.find(
-                        (item) => item.name === value
-                      );
-                      return item ? item.shortName : value;
-                    }}
-                  />
-                  <YAxis />
-                  <Tooltip
-                    content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-white p-4 border rounded-lg shadow-sm">
-                            <p className="font-medium">{label}</p>
-                            <p className="text-sm">
-                              <span className="text-[#8884d8]">Target:</span>{" "}
-                              {payload[0].payload.target} cal
-                            </p>
-                            <p className="text-sm">
-                              <span className="text-[#82ca9d]">Consumed:</span>{" "}
-                              {payload[0].payload.consumed} cal
-                            </p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="target"
-                    stroke="#8884d8"
-                    activeDot={{ r: 8 }}
-                    name="Target Calories"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="consumed"
-                    stroke="#82ca9d"
-                    name="Consumed Calories"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-              {(!nutritionHistory || nutritionHistory.length === 0) && (
-                <div className="text-center mt-2 text-sm text-gray-500">
-                  No nutrition history yet. Start tracking meals to see your
-                  progress!
-                </div>
-              )}
             </CardContent>
           </Card>
         </div>
@@ -308,47 +369,9 @@ export default function NutritionDashboard() {
                 <p className="text-sm text-blue-700 mt-2">
                   {caloriesConsumed >= targetCalories
                     ? "Goal reached! 🎉"
-                    : `${targetCalories - caloriesConsumed} calories remaining`}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Meals Card */}
-          <Card className="bg-green-50 border border-green-200 flex-1">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-green-800">
-                <Clock className="w-5 h-5" />
-                Meals
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-900 mb-2">
-                  {mealsCompleted}
-                  <span className="text-lg font-normal text-green-700">
-                    {" "}
-                    / {profileData?.mealFrequency || 3}
-                  </span>
-                </div>
-                <div className="w-full bg-green-200 rounded-full h-2.5">
-                  <div
-                    className="bg-green-600 h-2.5 rounded-full"
-                    style={{
-                      width: `${Math.min(
-                        100,
-                        (mealsCompleted / (profileData?.mealFrequency || 3)) *
-                          100
-                      )}%`,
-                    }}
-                  ></div>
-                </div>
-                <p className="text-sm text-green-700 mt-2">
-                  {mealsCompleted >= (profileData?.mealFrequency || 3)
-                    ? "All meals tracked! 🎉"
-                    : `${
-                        (profileData?.mealFrequency || 3) - mealsCompleted
-                      } meals remaining`}
+                    : `${Math.round(
+                        targetCalories - caloriesConsumed
+                      )} calories remaining`}
                 </p>
               </div>
             </CardContent>
@@ -373,6 +396,20 @@ export default function NutritionDashboard() {
                       <p className="text-xs text-purple-700">
                         / {nutritionGoals?.protein || 0}g
                       </p>
+                      <div className="w-full bg-purple-200 rounded-full h-1 mt-1">
+                        <div
+                          className="bg-purple-600 h-1 rounded-full"
+                          style={{
+                            width: `${Math.min(
+                              100,
+                              ((dailyNutrition?.dailyTotals?.totalProtein ||
+                                0) /
+                                (nutritionGoals?.protein || 1)) *
+                                100
+                            )}%`,
+                          }}
+                        ></div>
+                      </div>
                     </div>
                     <Check className="w-5 h-5 text-purple-600 flex-shrink-0" />
                   </div>
@@ -390,6 +427,19 @@ export default function NutritionDashboard() {
                       <p className="text-xs text-orange-700">
                         / {nutritionGoals?.carbs || 0}g
                       </p>
+                      <div className="w-full bg-orange-200 rounded-full h-1 mt-1">
+                        <div
+                          className="bg-orange-600 h-1 rounded-full"
+                          style={{
+                            width: `${Math.min(
+                              100,
+                              ((dailyNutrition?.dailyTotals?.totalCarbs || 0) /
+                                (nutritionGoals?.carbs || 1)) *
+                                100
+                            )}%`,
+                          }}
+                        ></div>
+                      </div>
                     </div>
                     <TrendingUp className="w-5 h-5 text-orange-600 flex-shrink-0" />
                   </div>
@@ -405,6 +455,19 @@ export default function NutritionDashboard() {
                       <p className="text-xs text-red-700">
                         / {nutritionGoals?.fat || 0}g
                       </p>
+                      <div className="w-full bg-red-200 rounded-full h-1 mt-1">
+                        <div
+                          className="bg-red-600 h-1 rounded-full"
+                          style={{
+                            width: `${Math.min(
+                              100,
+                              ((dailyNutrition?.dailyTotals?.totalFat || 0) /
+                                (nutritionGoals?.fat || 1)) *
+                                100
+                            )}%`,
+                          }}
+                        ></div>
+                      </div>
                     </div>
                     <Droplets className="w-5 h-5 text-red-600 flex-shrink-0" />
                   </div>
@@ -420,6 +483,19 @@ export default function NutritionDashboard() {
                       <p className="text-xs text-pink-700">
                         / {nutritionGoals?.fiber || 0}g
                       </p>
+                      <div className="w-full bg-pink-200 rounded-full h-1 mt-1">
+                        <div
+                          className="bg-pink-600 h-1 rounded-full"
+                          style={{
+                            width: `${Math.min(
+                              100,
+                              ((dailyNutrition?.dailyTotals?.totalFiber || 0) /
+                                (nutritionGoals?.fiber || 1)) *
+                                100
+                            )}%`,
+                          }}
+                        ></div>
+                      </div>
                     </div>
                     <Activity className="w-5 h-5 text-pink-600 flex-shrink-0" />
                   </div>
@@ -428,6 +504,115 @@ export default function NutritionDashboard() {
             </CardContent>
           </Card>
         </div>
+
+       {/* Foods Eaten Section - Full width below */}
+<div className="lg:col-span-3">
+  <Card>
+    <CardHeader>
+      <CardTitle>Foods Eaten Today</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {["breakfast", "lunch", "snack", "dinner"].map((mealType) => {
+          const isCompleted = isMealCompleted(mealType);
+          const foods = getMealFoodsWithQuantity(mealType);
+          const mealIcons = {
+            breakfast: Coffee,
+            lunch: Sun,
+            snack: Apple,
+            dinner: Moon,
+          };
+          const Icon = mealIcons[mealType];
+          const consumed = getMealConsumed(mealType);
+          const target = mealDistribution[mealType] || {};
+
+          return (
+            <div
+              key={mealType}
+              className={`p-4 rounded-lg border ${
+                isCompleted
+                  ? "bg-green-50 border-green-200"
+                  : "bg-gray-50 border-gray-200"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Icon
+                    className={`w-5 h-5 ${
+                      isCompleted ? "text-green-600" : "text-gray-400"
+                    }`}
+                  />
+                  <h3 className="text-lg font-medium capitalize text-gray-900">
+                    {mealType}
+                  </h3>
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <div className="flex justify-between text-sm text-gray-600 mb-1">
+                  <span>Calories</span>
+                  <span>
+                    {consumed.calories || 0} / {target.calories || 0}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full ${
+                      isCompleted ? "bg-green-500" : "bg-gray-300"
+                    }`}
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        target.calories
+                          ? (consumed.calories / target.calories) * 100
+                          : 0
+                      )}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              {isCompleted ? (
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-sm font-medium text-gray-700">
+                      Foods ({foods.length})
+                    </h4>
+                  </div>
+                  <div className="space-y-1 max-h-40 overflow-y-auto">
+                    {foods.map((food, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center text-sm bg-white p-2 rounded border"
+                      >
+                        <div>
+                          <span className="font-medium text-gray-900 block">
+                            {food.foodName}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {food.quantity} {food.unit}
+                            {food.quantity > 1 ? "s" : ""}
+                          </span>
+                        </div>
+                        <span className="text-gray-600 font-medium">
+                          {food.calories} cal
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 italic text-center py-4">
+                  No foods logged for {mealType}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </CardContent>
+  </Card>
+</div>
       </div>
     </div>
   );

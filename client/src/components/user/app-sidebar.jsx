@@ -10,6 +10,8 @@ import {
   MessageSquare,
   HeartPulse,
   Users,
+  Bell,
+  Sparkles,
 } from "lucide-react";
 
 import { NavMain } from "@/components/user/nav-main";
@@ -47,6 +49,16 @@ const data = {
       title: "Track Meal",
       url: "/user/mealplan",
       icon: Utensils,
+    },
+    {
+      title: "Notifications",
+      url: "/user/notifications",
+      icon: Bell,
+    },
+    {
+      title: "Ai suggestions",
+      url: "/user/aisuggestions",
+      icon: Sparkles,
     },
     // {
     //   title: "Customize",

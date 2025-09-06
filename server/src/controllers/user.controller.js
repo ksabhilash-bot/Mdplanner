@@ -14,25 +14,471 @@ import { NutritionGoal } from "../models/NutritionGoal.js";
 import Food from "../models/Food.js"; // adjust path if needed
 
 import { MealLog } from "../models/MealLog.js";
+import Notification from "../models/Notification.js";
+
+import { buildFoodSuggestionsPrompt } from "../utils/buildFoodSuggestionsPrompt.js";
+
+export const aiFoodSuggestions = async (req, res) => {
+  console.log("AI food suggestions backend");
+
+  try {
+    const userId = req.user.userId;
+    const { moodDescription } = req.body;
+    console.log("Mood description:", moodDescription);
+
+    if (!moodDescription) {
+      return res.status(400).json({
+        success: false,
+        message: "Mood description is required",
+      });
+    }
+
+    // Get user profile for personalized suggestions
+    let userProfile = null;
+    if (userId) {
+      try {
+        userProfile = await User.findById(userId).populate("profile");
+      } catch (err) {
+        console.log(
+          "Could not fetch user profile, proceeding with general suggestions"
+        );
+      }
+    }
+
+    // Initialize Google AI
+    const ai = new GoogleGenAI({
+      apiKey:
+        process.env.GOOGLE_AI_API_KEY ||
+        "AIzaSyBZNbCee_ngv7ZtGk6XeMAmOuCo3snyKWE",
+    });
+
+    // Build the prompt for food suggestions based on mood/hormones
+    const promptObject = await buildFoodSuggestionsPrompt(
+      moodDescription,
+      userProfile
+    );
+
+    console.log(
+      "🧠 Generating science-based food suggestions for mood/hormones..."
+    );
+
+    // Generate content using Gemini
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: [promptObject],
+    });
+
+    const rawText = response.text;
+
+    // Clean any markdown wrapping
+    const cleaned = rawText
+      .replace(/```javascript/g, "")
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    // Parse the AI response
+    let foodSuggestions;
+    try {
+      foodSuggestions = JSON.parse(cleaned);
+    } catch (parseError) {
+      console.error("Failed to parse AI response:", parseError);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to generate food suggestions",
+      });
+    }
+
+    console.log("blaaaaaaaaaaaaaaaa", foodSuggestions);
+    //  moodAnalysis: foodSuggestions.moodAnalysis,
+    //         hormonalFactors: foodSuggestions.hormonalFactors,
+    //         recommendedFoods: foodSuggestions.recommendedFoods,
+    //         mealSuggestions: foodSuggestions.mealSuggestions,
+    //         avoidFoods: foodSuggestions.avoidFoods,
+    //         scientificBasis: foodSuggestions.scientificBasis,
+    //         additionalTips: foodSuggestions.additionalTips,
+    // Send successful response
+    res.status(200).json({
+      success: true,
+      foodSuggestions,
+      message: "Food suggestions generated successfully",
+    });
+  } catch (error) {
+    console.error("Error in aiFoodSuggestions:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error while generating food suggestions",
+    });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    console.log("update profile controller backend");
+
+    const userId = req.user.userId;
+    const updateData = req.body;
+
+    // 1️⃣ Find existing profile
+    const existingProfile = await Profile.findOne({ user: userId });
+    if (!existingProfile) {
+      return res.status(404).json({ error: "Profile not found" });
+    }
+
+    // 2️⃣ Update profile with new data
+    const updatedProfile = await Profile.findOneAndUpdate(
+      { user: userId },
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    // 3️⃣ Check if nutrition-affecting fields changed
+    const nutritionFields = [
+      "weight",
+      "height",
+      "age",
+      "gender",
+      "activityLevel",
+      "fitnessGoal",
+      "mealFrequency",
+    ];
+    const needsNutritionRecalc = nutritionFields.some(
+      (field) =>
+        updateData.hasOwnProperty(field) &&
+        updateData[field] !== existingProfile[field]
+    );
+
+    let nutritionGoal = null;
+    let extraInfo = {};
+
+    if (needsNutritionRecalc) {
+      console.log(
+        "Recalculating nutrition due to changes in:",
+        nutritionFields.filter(
+          (field) =>
+            updateData.hasOwnProperty(field) &&
+            updateData[field] !== existingProfile[field]
+        )
+      );
+
+      // 4️⃣ Recalculate nutrition values
+      const profileData = updatedProfile.toObject();
+
+      const bmr = await calculateBmr(profileData);
+      const tdee = await calculateTdee(bmr, profileData.activityLevel);
+      const targetCalories = await adjustCaloriesForGoal(
+        tdee,
+        profileData.fitnessGoal
+      );
+      const macros = await calculateMacros(
+        targetCalories,
+        profileData.fitnessGoal,
+        profileData
+      );
+
+      // 5️⃣ Recalculate meal distribution
+      const mealsPerDay = parseInt(profileData.mealFrequency) || 4;
+      const mealDistribution = calculateMealDistribution(macros, mealsPerDay);
+
+      // 6️⃣ Update existing nutrition goal (don't create new one)
+      const currentGoal = await NutritionGoal.findOne({
+        userId,
+        isActive: true,
+      });
+
+      if (currentGoal) {
+        nutritionGoal = await NutritionGoal.findByIdAndUpdate(
+          currentGoal._id,
+          {
+            calories: targetCalories,
+            protein: macros.protein,
+            carbs: macros.carbs,
+            fat: macros.fat,
+            fiber: macros.fiber,
+            mealDistribution,
+            // Keep the same start/end dates
+          },
+          { new: true }
+        );
+      } else {
+        // Create new goal if none exists (edge case)
+        const startDate = new Date();
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6); // Default 7-day plan
+
+        nutritionGoal = new NutritionGoal({
+          userId,
+          calories: targetCalories,
+          protein: macros.protein,
+          carbs: macros.carbs,
+          fat: macros.fat,
+          fiber: macros.fiber,
+          mealDistribution,
+          startDate,
+          endDate,
+          isActive: true,
+        });
+        await nutritionGoal.save();
+      }
+
+      extraInfo = { bmr, tdee };
+    } else {
+      // Just get the existing nutrition goal
+      nutritionGoal = await NutritionGoal.findOne({ userId, isActive: true });
+    }
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      profile: updatedProfile,
+      nutritionGoal,
+      recalculated: needsNutritionRecalc,
+      extraInfo,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Helper function to calculate meal distribution (extracted from your original code)
+const calculateMealDistribution = (macros, mealsPerDay) => {
+  let mealDistribution;
+
+  if (mealsPerDay === 3) {
+    mealDistribution = {
+      breakfast: {
+        calories: macros.calories * 0.33,
+        protein: macros.protein * 0.33,
+        carbs: macros.carbs * 0.33,
+        fat: macros.fat * 0.33,
+        fiber: macros.fiber * 0.33,
+      },
+      lunch: {
+        calories: macros.calories * 0.33,
+        protein: macros.protein * 0.33,
+        carbs: macros.carbs * 0.33,
+        fat: macros.fat * 0.33,
+        fiber: macros.fiber * 0.33,
+      },
+      dinner: {
+        calories: macros.calories * 0.34,
+        protein: macros.protein * 0.34,
+        carbs: macros.carbs * 0.34,
+        fat: macros.fat * 0.34,
+        fiber: macros.fiber * 0.34,
+      },
+    };
+  } else if (mealsPerDay === 4) {
+    mealDistribution = {
+      breakfast: {
+        calories: macros.calories * 0.3,
+        protein: macros.protein * 0.3,
+        carbs: macros.carbs * 0.3,
+        fat: macros.fat * 0.3,
+        fiber: macros.fiber * 0.3,
+      },
+      lunch: {
+        calories: macros.calories * 0.3,
+        protein: macros.protein * 0.3,
+        carbs: macros.carbs * 0.3,
+        fat: macros.fat * 0.3,
+        fiber: macros.fiber * 0.3,
+      },
+      snack: {
+        calories: macros.calories * 0.1,
+        protein: macros.protein * 0.1,
+        carbs: macros.carbs * 0.1,
+        fat: macros.fat * 0.1,
+        fiber: macros.fiber * 0.1,
+      },
+      dinner: {
+        calories: macros.calories * 0.3,
+        protein: macros.protein * 0.3,
+        carbs: macros.carbs * 0.3,
+        fat: macros.fat * 0.3,
+        fiber: macros.fiber * 0.3,
+      },
+    };
+  } else if (mealsPerDay === 5) {
+    mealDistribution = {
+      breakfast: {
+        calories: macros.calories * 0.25,
+        protein: macros.protein * 0.25,
+        carbs: macros.carbs * 0.25,
+        fat: macros.fat * 0.25,
+        fiber: macros.fiber * 0.25,
+      },
+      snack1: {
+        calories: macros.calories * 0.125,
+        protein: macros.protein * 0.125,
+        carbs: macros.carbs * 0.125,
+        fat: macros.fat * 0.125,
+        fiber: macros.fiber * 0.125,
+      },
+      lunch: {
+        calories: macros.calories * 0.25,
+        protein: macros.protein * 0.25,
+        carbs: macros.carbs * 0.25,
+        fat: macros.fat * 0.25,
+        fiber: macros.fiber * 0.25,
+      },
+      snack2: {
+        calories: macros.calories * 0.125,
+        protein: macros.protein * 0.125,
+        carbs: macros.carbs * 0.125,
+        fat: macros.fat * 0.125,
+        fiber: macros.fiber * 0.125,
+      },
+      dinner: {
+        calories: macros.calories * 0.25,
+        protein: macros.protein * 0.25,
+        carbs: macros.carbs * 0.25,
+        fat: macros.fat * 0.25,
+        fiber: macros.fiber * 0.25,
+      },
+    };
+  } else if (mealsPerDay === 6) {
+    mealDistribution = {
+      breakfast: {
+        calories: macros.calories * 0.22,
+        protein: macros.protein * 0.22,
+        carbs: macros.carbs * 0.22,
+        fat: macros.fat * 0.22,
+        fiber: macros.fiber * 0.22,
+      },
+      lunch: {
+        calories: macros.calories * 0.22,
+        protein: macros.protein * 0.22,
+        carbs: macros.carbs * 0.22,
+        fat: macros.fat * 0.22,
+        fiber: macros.fiber * 0.22,
+      },
+      dinner: {
+        calories: macros.calories * 0.22,
+        protein: macros.protein * 0.22,
+        carbs: macros.carbs * 0.22,
+        fat: macros.fat * 0.22,
+        fiber: macros.fiber * 0.22,
+      },
+      snack1: {
+        calories: macros.calories * 0.113,
+        protein: macros.protein * 0.113,
+        carbs: macros.carbs * 0.113,
+        fat: macros.fat * 0.113,
+        fiber: macros.fiber * 0.113,
+      },
+      snack2: {
+        calories: macros.calories * 0.113,
+        protein: macros.protein * 0.113,
+        carbs: macros.carbs * 0.113,
+        fat: macros.fat * 0.113,
+        fiber: macros.fiber * 0.113,
+      },
+      snack3: {
+        calories: macros.calories * 0.114,
+        protein: macros.protein * 0.114,
+        carbs: macros.carbs * 0.114,
+        fat: macros.fat * 0.114,
+        fiber: macros.fiber * 0.114,
+      },
+    };
+  } else {
+    const equalPortion = 1 / mealsPerDay;
+    mealDistribution = {
+      equal: {
+        calories: macros.calories * equalPortion,
+        protein: macros.protein * equalPortion,
+        carbs: macros.carbs * equalPortion,
+        fat: macros.fat * equalPortion,
+        fiber: macros.fiber * equalPortion,
+      },
+    };
+  }
+
+  // Round all values
+  Object.keys(mealDistribution).forEach((mealType) => {
+    mealDistribution[mealType].calories = Math.round(
+      mealDistribution[mealType].calories
+    );
+    mealDistribution[mealType].protein = Math.round(
+      mealDistribution[mealType].protein
+    );
+    mealDistribution[mealType].carbs = Math.round(
+      mealDistribution[mealType].carbs
+    );
+    mealDistribution[mealType].fat = Math.round(mealDistribution[mealType].fat);
+    mealDistribution[mealType].fiber = Math.round(
+      mealDistribution[mealType].fiber
+    );
+  });
+
+  return mealDistribution;
+};
+
+// ✅ Mark a single notification as read
+export const markNotificationAsRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const notification = await Notification.findOneAndUpdate(
+      { _id: id, userId: req.user.userId }, // ensure user owns it
+      { $set: { isRead: true } },
+      { new: true }
+    );
+
+    if (!notification) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Notification not found" });
+    }
+
+    res.status(200).json({ success: true, notification });
+  } catch (error) {
+    console.error("❌ Error marking notification as read:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// ✅ Get all notifications for the logged-in user
+export const getNotifications = async (req, res) => {
+  try {
+    const userId = req.user.userId; // assuming auth middleware sets req.user
+
+    const notifications = await Notification.find({ userId }).sort({
+      createdAt: -1,
+    }); // latest first
+
+    res.status(200).json({
+      success: true,
+      count: notifications.length,
+      notifications,
+    });
+  } catch (error) {
+    console.error("❌ Error fetching notifications:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error fetching notifications",
+    });
+  }
+};
 
 export const getDailySummary = async (req, res) => {
   try {
     console.log("daily summary");
-    
+
     const userId = req.user.userId;
     const { date } = req.query; // "2025-09-05"
-    
+
     if (!date) {
       return res.status(400).json({ error: "Date is required" });
     }
-    
+
     // Get all meals for that date
     const meals = await MealLog.find({ userId, date });
-    
+
     // Group meals by mealType and calculate totals for each group
     const groupedMeals = meals.reduce((acc, meal) => {
       const mealType = meal.mealType;
-      
+
       // Initialize meal type if it doesn't exist
       if (!acc[mealType]) {
         acc[mealType] = {
@@ -44,10 +490,10 @@ export const getDailySummary = async (req, res) => {
             carbs: 0,
             fat: 0,
             fiber: 0,
-          }
+          },
         };
       }
-      
+
       // Add the food item to this meal type
       acc[mealType].foods.push({
         _id: meal._id,
@@ -62,22 +508,22 @@ export const getDailySummary = async (req, res) => {
         fiber: meal.fiber || 0,
         weight_grams: meal.weight_grams,
         createdAt: meal.createdAt,
-        updatedAt: meal.updatedAt
+        updatedAt: meal.updatedAt,
       });
-      
+
       // Add to meal type totals
       acc[mealType].totals.calories += meal.calories || 0;
       acc[mealType].totals.protein += meal.protein || 0;
       acc[mealType].totals.carbs += meal.carbs || 0;
       acc[mealType].totals.fat += meal.fat || 0;
       acc[mealType].totals.fiber += meal.fiber || 0;
-      
+
       return acc;
     }, {});
-    
+
     // Convert grouped object to array
     const mealsArray = Object.values(groupedMeals);
-    
+
     // Calculate overall daily totals and round to 2 decimal places
     const dailyTotals = meals.reduce(
       (acc, meal) => {
@@ -96,20 +542,19 @@ export const getDailySummary = async (req, res) => {
         totalFiber: 0,
       }
     );
-    
+
     // Round daily totals to 2 decimal places
-    Object.keys(dailyTotals).forEach(key => {
+    Object.keys(dailyTotals).forEach((key) => {
       dailyTotals[key] = Math.round(dailyTotals[key] * 100) / 100;
     });
-    
+
     return res.json({
       date,
       meals: mealsArray, // Grouped by meal type
       dailyTotals, // Overall totals for the day
       totalMealTypes: mealsArray.length,
-      totalFoodItems: meals.length
+      totalFoodItems: meals.length,
     });
-    
   } catch (error) {
     console.error("getDailyNutrition error:", error);
     res.status(500).json({ error: "Server error" });

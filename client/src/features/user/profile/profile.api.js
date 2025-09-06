@@ -17,3 +17,17 @@ export const fetchUserProfile = async () => {
     throw error.response?.data || error.message;
   }
 };
+
+export const updateUserProfile = async (updateData) => {
+  try {
+    console.log("update user profile function frontend");
+
+    const response = await axiosInstance.patch(
+      "/user/updateprofile",
+      updateData
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
