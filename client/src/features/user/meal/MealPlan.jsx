@@ -1,5 +1,5 @@
 import { useMealPlanStore } from "../meal/mealPlan.store";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { trackMeal, getFoodsByMeal, getAllFoods } from "./meal.api";
