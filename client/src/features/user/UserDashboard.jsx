@@ -293,7 +293,7 @@ export default function NutritionDashboard() {
     return <FullPageSpinner />;
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-2 py-2">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column - Calendar and Charts */}
         <div className="space-y-6">
@@ -302,7 +302,7 @@ export default function NutritionDashboard() {
               <CardTitle>Today's Date</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between mb-17">
+              <div className="flex items-center justify-between mb-5 lg:mb-17">
                 <p className="text-lg font-medium">
                   {format(selectedDate, "EEEE, MMMM d")}
                 </p>

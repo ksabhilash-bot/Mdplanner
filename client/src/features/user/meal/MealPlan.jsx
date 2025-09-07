@@ -145,7 +145,7 @@ export default function MealTracking() {
     const subcategoriesByCategory = {};
 
     allFoods.forEach((food) => {
-      const mealTypes = Array.isArray(food.meal) ? food.meal : [food.meal];
+      const mealTypes = Array.isArray(food.meals) ? food.meals : [food.meals];
       const category = food.category || "uncategorized";
       const subcategory = food.subCategory || "other";
 
@@ -303,7 +303,7 @@ export default function MealTracking() {
       let allFoodsInCategory = [];
       Object.values(organizedFoods[category]).forEach((subcategoryFoods) => {
         const filtered = subcategoryFoods.filter((food) => {
-          const mealTypes = Array.isArray(food.meal) ? food.meal : [food.meal];
+          const mealTypes = Array.isArray(food.meals) ? food.meals : [food.meals];
           return mealTypes.includes(mealType);
         });
         allFoodsInCategory = [...allFoodsInCategory, ...filtered];
@@ -364,7 +364,7 @@ export default function MealTracking() {
   }
 
   return (
-    <div className="container mx-auto px-2 xl:px-8 py-8">
+    <div className="container mx-auto px-2 py-2 ">
       <div className="max-w-4xl mx-auto">
         <div className="space-y-6">
           <div className="flex justify-between items-center">

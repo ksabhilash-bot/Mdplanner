@@ -55,76 +55,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { fetchUsers } from "./admin.api";
-
-// Mock API calls - replace with actual API calls to your backend
-const mockUsers = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    role: "user",
-    status: "active",
-    createdAt: "2023-01-15",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane@example.com",
-    role: "admin",
-    status: "active",
-    createdAt: "2023-02-20",
-  },
-  {
-    id: 3,
-    name: "Bob Johnson",
-    email: "bob@example.com",
-    role: "user",
-    status: "inactive",
-    createdAt: "2023-03-10",
-  },
-];
-
-// Simulate API calls
-// const fetchUsers = async () => {
-//   // In a real app, you would fetch from your API
-//   return new Promise((resolve) => {
-//     setTimeout(() => {
-//       resolve(mockUsers);
-//     }, 500);
-//   });
-// };
-
-const createUser = async (userData) => {
-  // In a real app, you would POST to your API
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        ...userData,
-        id: Math.floor(Math.random() * 1000),
-        createdAt: new Date().toISOString(),
-      });
-    }, 500);
-  });
-};
-
-const updateUser = async (id, userData) => {
-  // In a real app, you would PUT to your API
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ id, ...userData });
-    }, 500);
-  });
-};
-
-const deleteUser = async (id) => {
-  // In a real app, you would DELETE to your API
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ success: true });
-    }, 500);
-  });
-};
+import { fetchUsers, createUser, updateUser, deleteUser } from "./admin.api";
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -214,9 +145,11 @@ export default function UserManagement() {
   const handleUpdateUser = async (e) => {
     e.preventDefault();
     try {
-      const updatedUser = await updateUser(selectedUser.id, formData);
+      const updatedUser = await updateUser(selectedUser._id, formData);
       setUsers(
-        users.map((user) => (user.id === selectedUser.id ? updatedUser : user))
+        users.map((user) =>
+          user._id === selectedUser._id ? updatedUser : user
+        )
       );
       setIsEditDialogOpen(false);
       setSelectedUser(null);
@@ -236,8 +169,12 @@ export default function UserManagement() {
 
   const handleDeleteUser = async () => {
     try {
-      await deleteUser(selectedUser.id);
-      setUsers(users.filter((user) => user.id !== selectedUser.id));
+      console.log("seeee", selectedUser);
+      console.log("yooooo", users);
+
+      await deleteUser(selectedUser._id);
+
+      setUsers(users.filter((user) => user._id !== selectedUser._id));
       setIsDeleteDialogOpen(false);
       setSelectedUser(null);
       toast.success("User deleted successfully");
@@ -280,10 +217,10 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="container mx-auto px-8 py-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div className="container mx-auto">
+      <div className="flex flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
             <UserCog className="h-8 w-8" />
             User Management
           </h1>
@@ -362,21 +299,21 @@ export default function UserManagement() {
               </TableRow>
             ) : (
               filteredUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
+                <TableRow key={user?.id}>
+                  <TableCell className="font-medium">{user?.name}</TableCell>
+                  <TableCell>{user?.email}</TableCell>
                   <TableCell>
-                    <Badge variant={getRoleBadgeVariant(user.role)}>
-                      {user.role}
+                    <Badge variant={getRoleBadgeVariant(user?.role)}>
+                      {user?.role}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={getStatusBadgeVariant(user.status)}>
-                      {user.status}
+                    <Badge variant={getStatusBadgeVariant(user?.status)}>
+                      {user?.status}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {new Date(user.createdAt).toLocaleDateString()}
+                    {new Date(user?.createdAt).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>

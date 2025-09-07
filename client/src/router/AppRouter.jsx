@@ -20,6 +20,8 @@ import Notifications from "@/features/user/Notifications";
 // Admin Pages
 import AdminDashboard from "@/features/admin/AdminDashboard";
 import UserManagement from "@/features/admin/UserManagement";
+import AddFood from "@/features/admin/AddFood";
+import FoodManagement from "@/features/admin/FoodManagement";
 
 // Layouts
 import UserLayout from "@/layouts/UserLayout";
@@ -130,6 +132,22 @@ export default function AppRouter() {
           element={
             <ProtectedRoute adminOnly>
               <UserManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/managefoods"
+          element={
+            <ProtectedRoute adminOnly>
+              <FoodManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/addfood"
+          element={
+            <ProtectedRoute adminOnly>
+              <AddFood />
             </ProtectedRoute>
           }
         />

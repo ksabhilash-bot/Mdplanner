@@ -167,7 +167,7 @@ export default function Notifications() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-3xl">
+    <div className="container mx-auto px-2 py-2 max-w-3xl">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Bell className="w-8 h-8 text-foreground" />
@@ -198,7 +198,7 @@ export default function Notifications() {
             .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA))
             .map(([date, dateNotifications]) => (
               <Card key={date}>
-                <CardHeader className="pb-3 bg-muted">
+                <CardHeader className="pb-1 pt-2 bg-muted">
                   <div className="flex items-center gap-2">
                     <CalendarIcon className="w-5 h-5 text-muted-foreground" />
                     <CardTitle className="text-lg font-semibold text-foreground">

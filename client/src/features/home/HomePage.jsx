@@ -129,9 +129,6 @@ export default function DietPlannerLanding() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Navigation */}
-      {/* <Navbar /> */}
-      {/* Hero Section */}
       <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="w-full">
           <div className="text-center space-y-8">
@@ -150,42 +147,11 @@ export default function DietPlannerLanding() {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              {/* <Button
-                size="lg"
-                className="text-lg px-8 py-6 group bg-black text-white dark:bg-gray-800 dark:text-white"
-              >
-                Start Your Journey
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button> */}
               <Button>
                 Start Your Journey
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-
-              {/* <Button
-                size="lg"
-                className="text-lg px-8 py-6 border-2 bg-black text-white dark:bg-gray-800 dark:text-white"
-              >
-                Watch Demo
-              </Button> */}
             </div>
-
-            {/* <div className="pt-12">
-              <div className="flex justify-center items-center space-x-12 text-muted-foreground">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-foreground">50K+</div>
-                  <div className="text-sm">Active Users</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-foreground">2M+</div>
-                  <div className="text-sm">Meals Planned</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-foreground">95%</div>
-                  <div className="text-sm">Goal Achievement</div>
-                </div>
-              </div>
-            </div> */}
           </div>
         </div>
       </section>
@@ -272,62 +238,6 @@ export default function DietPlannerLanding() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      {/* <section id="testimonials" className="py-24 bg-muted">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold">
-              What Our Users Say
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Real stories from people who transformed their health with NutriAI
-            </p>
-          </div>
-
-          <div className="relative">
-            <Card className="border-2 border-border p-8">
-              <CardContent className="text-center space-y-6">
-                <div className="flex justify-center space-x-1 mb-4">
-                  {[...Array(testimonials[currentTestimonial].rating)].map(
-                    (_, i) => (
-                      <Star
-                        key={i}
-                        className="h-5 w-5 fill-current text-yellow-400"
-                      />
-                    )
-                  )}
-                </div>
-                <blockquote className="text-2xl italic text-foreground leading-relaxed">
-                  "{testimonials[currentTestimonial].content}"
-                </blockquote>
-                <div className="space-y-1">
-                  <div className="font-bold text-lg">
-                    {testimonials[currentTestimonial].name}
-                  </div>
-                  <div className="text-muted-foreground">
-                    {testimonials[currentTestimonial].role}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="flex justify-center space-x-2 mt-8">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  className={`w-3 h-3 rounded-full transition-colors ${
-                    index === currentTestimonial
-                      ? "bg-primary"
-                      : "bg-muted-foreground"
-                  }`}
-                  onClick={() => setCurrentTestimonial(index)}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section> */}
-
       {/* CTA Section */}
       <section className="py-24 bg-muted text-foreground">
         <div className="w-full px-4 sm:px-6 lg:px-8 text-center space-y-8">
@@ -335,8 +245,6 @@ export default function DietPlannerLanding() {
             Ready to Transform Your Health?
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            {/* Join thousands of users who have already achieved their nutrition
-            goals with our AI-powered platform.  */}
             Start your personalized journey today.
           </p>
 
@@ -345,90 +253,14 @@ export default function DietPlannerLanding() {
               Get Started
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
-            {/* <Button
-              size="lg"
-              className="text-lg px-8 py-6 border-2 bg-black text-white dark:bg-gray-800 dark:text-white"
-            >
-              Schedule Demo
-            </Button> */}
           </div>
-
-          {/* <div className="text-sm text-muted-foreground pt-4">
-            No credit card required • 14-day free trial • Cancel anytime
-          </div> */}
         </div>
       </section>
 
       {/* Footer - Matching "How It Works" style */}
       <footer className="py-12">
         <div className="w-full px-4 sm:px-6 lg:px-8">
-          {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Brain className="h-6 w-6 text-foreground" />
-                <span className="text-xl font-bold">NutriAI</span>
-              </div>
-              <p className="text-muted-foreground leading-relaxed">
-                Your intelligent nutrition partner for a healthier, happier
-                life.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Product</h3>
-              <div className="space-y-2 text-muted-foreground">
-                <div className="hover:text-foreground cursor-pointer transition-colors">
-                  Features
-                </div>
-                <div className="hover:text-foreground cursor-pointer transition-colors">
-                  Pricing
-                </div>
-                <div className="hover:text-foreground cursor-pointer transition-colors">
-                  Mobile App
-                </div>
-                <div className="hover:text-foreground cursor-pointer transition-colors">
-                  API
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Company</h3>
-              <div className="space-y-2 text-muted-foreground">
-                <div className="hover:text-foreground cursor-pointer transition-colors">
-                  About Us
-                </div>
-                <div className="hover:text-foreground cursor-pointer transition-colors">
-                  Careers
-                </div>
-                <div className="hover:text-foreground cursor-pointer transition-colors">
-                  Blog
-                </div>
-                <div className="hover:text-foreground cursor-pointer transition-colors">
-                  Press
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Support</h3>
-              <div className="space-y-2 text-muted-foreground">
-                <div className="hover:text-foreground cursor-pointer transition-colors">
-                  Help Center
-                </div>
-                <div className="hover:text-foreground cursor-pointer transition-colors">
-                  Contact
-                </div>
-                <div className="hover:text-foreground cursor-pointer transition-colors">
-                  Privacy
-                </div>
-                <div className="hover:text-foreground cursor-pointer transition-colors">
-                  Terms
-                </div>
-              </div>
-            </div>
-          </div> */}
-
+          Features
           <div className="border-t border-border mt-12 pt-8 text-center text-muted-foreground">
             <p>
               &copy; 2025 NutriAI. All rights reserved. Powered by artificial

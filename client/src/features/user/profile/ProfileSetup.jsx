@@ -120,27 +120,24 @@ export default function ProfileSetup({ className, ...props }) {
   };
 
   return (
-    <div className="flex justify-center items-start min-h-screen py-8 px-4">
+    <div className="flex justify-center items-start min-h-screen py-4 px-2 sm:py-8 sm:px-4">
       <form
         onSubmit={handleSubmit}
         className={cn(
-          "flex flex-col gap-6 w-full max-w-3xl bg-background p-6 rounded-lg border border-border shadow-sm",
+          "flex flex-col gap-4 w-full max-w-3xl bg-background p-4 sm:p-6 rounded-lg border border-border shadow-sm",
           className
         )}
         {...props}
       >
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-2xl font-bold">Personalize Your Diet</h1>
-          {/* <p className="text-muted-foreground text-sm text-balance">
-            Help us create the perfect meal plan tailored just for you
-          </p> */}
+          <h1 className="text-xl sm:text-2xl font-bold">Personalize Your Diet</h1>
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid gap-4">
           {/* Section 1: Basic Information */}
-          <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
-            <h2 className="text-xl font-semibold">Basic Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-3 p-4 sm:p-5 bg-muted/50 rounded-lg">
+            <h2 className="text-lg sm:text-xl font-semibold">Basic Information</h2>
+            <div className="grid grid-cols-1 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="age">Age *</Label>
                 <Input
@@ -151,6 +148,7 @@ export default function ProfileSetup({ className, ...props }) {
                   required
                   value={profileData.age}
                   onChange={handleChange}
+                  className="w-full"
                 />
               </div>
 
@@ -164,6 +162,7 @@ export default function ProfileSetup({ className, ...props }) {
                   required
                   value={profileData.height}
                   onChange={handleChange}
+                  className="w-full"
                 />
               </div>
 
@@ -177,36 +176,35 @@ export default function ProfileSetup({ className, ...props }) {
                   required
                   value={profileData.weight}
                   onChange={handleChange}
+                  className="w-full"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
-              <div className="space-y-2">
-                <Label>Gender *</Label>
-                <Select
-                  value={profileData.gender}
-                  onValueChange={(value) => handleSelectChange("gender", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                    <SelectItem value="prefer-not-to-say">
-                      Prefer not to say
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label>Gender *</Label>
+              <Select
+                value={profileData.gender}
+                onValueChange={(value) => handleSelectChange("gender", value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select your gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="prefer-not-to-say">
+                    Prefer not to say
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
           {/* Section 2: Activity & Goals */}
-          <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
-            <h2 className="text-xl font-semibold">Activity & Goals</h2>
+          <div className="space-y-3 p-4 sm:p-5 bg-muted/50 rounded-lg">
+            <h2 className="text-lg sm:text-xl font-semibold">Activity & Goals</h2>
 
             {/* Activity Level */}
             <div className="space-y-2">
@@ -217,7 +215,7 @@ export default function ProfileSetup({ className, ...props }) {
                   handleSelectChange("activityLevel", value)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select your activity level" />
                 </SelectTrigger>
                 <SelectContent>
@@ -249,7 +247,7 @@ export default function ProfileSetup({ className, ...props }) {
                   handleSelectChange("fitnessGoal", value)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select your fitness goal" />
                 </SelectTrigger>
                 <SelectContent>
@@ -280,32 +278,23 @@ export default function ProfileSetup({ className, ...props }) {
                   }
                   value={profileData.targetWeight}
                   onChange={handleChange}
+                  className="w-full"
                 />
               </div>
             )}
           </div>
 
           {/* Section 3: Dietary Preferences */}
-          <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
-            <h2 className="text-xl font-semibold">Dietary Preferences</h2>
+          <div className="space-y-3 p-4 sm:p-5 bg-muted/50 rounded-lg">
+            <h2 className="text-lg sm:text-xl font-semibold">Dietary Preferences</h2>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="space-y-2">
                 <Label>Diet Preference (Select One)</Label>
                 <div className="flex flex-wrap gap-2">
                   {[
                     "Vegetarian",
                     "Non-Vegetarian",
-                    // "Vegan",
-                    // "Eggetarian",
-                    // "Keto",
-                    // "Paleo",
-                    // "Mediterranean",
-                    // "Low-Carb",
-                    // "Gluten-Free",
-                    // "Dairy-Free",
-                    // "Pescatarian",
-                    // "Flexitarian",
                   ].map((diet) => (
                     <Button
                       key={diet}
@@ -316,117 +305,20 @@ export default function ProfileSetup({ className, ...props }) {
                           : "outline"
                       }
                       onClick={() => handleSelectChange("dietPreference", diet)}
-                      className="h-8 px-3 text-xs"
+                      className="h-8 px-3 text-xs flex-1 sm:flex-none"
                     >
                       {diet}
                     </Button>
                   ))}
                 </div>
               </div>
-
-              {/* <div className="space-y-2">
-                <Label>Food Allergies/Intolerances</Label>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "Nuts",
-                    "Dairy",
-                    "Eggs",
-                    "Gluten",
-                    "Shellfish",
-                    "Soy",
-                    "Fish",
-                    "Wheat",
-                    "Sesame",
-                    "None",
-                  ].map((allergy) => (
-                    <Button
-                      key={allergy}
-                      type="button"
-                      variant={
-                        profileData.foodAllergies.includes(allergy)
-                          ? "default"
-                          : "outline"
-                      }
-                      onClick={() =>
-                        handleMultiSelect("foodAllergies", allergy)
-                      }
-                      className="h-8 px-3 text-xs"
-                    >
-                      {allergy}
-                    </Button>
-                  ))}
-                </div>
-              </div> */}
-
-              {/* <div className="space-y-2">
-                <Label htmlFor="otherAllergies">Other Allergies</Label>
-                <Textarea
-                  id="otherAllergies"
-                  name="otherAllergies"
-                  placeholder="List any other allergies not mentioned above"
-                  value={profileData.otherAllergies}
-                  onChange={handleChange}
-                />
-              </div> */}
             </div>
           </div>
 
-          {/* Section 4: Health Information */}
-          {/* <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
-            <h2 className="text-xl font-semibold">Health Information</h2>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Medical Conditions</Label>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "Diabetes",
-                    "Hypertension",
-                    "PCOS",
-                    "Thyroid Disorder",
-                    "Heart Disease",
-                    "Kidney Disease",
-                    "Autoimmune Disorder",
-                    "None",
-                  ].map((condition) => (
-                    <Button
-                      key={condition}
-                      type="button"
-                      variant={
-                        profileData.medicalConditions.includes(condition)
-                          ? "default"
-                          : "outline"
-                      }
-                      onClick={() =>
-                        handleMultiSelect("medicalConditions", condition)
-                      }
-                      className="h-8 px-3 text-xs"
-                    >
-                      {condition}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="otherMedicalConditions">
-                  Other Medical Conditions
-                </Label>
-                <Textarea
-                  id="otherMedicalConditions"
-                  name="otherMedicalConditions"
-                  placeholder="List any other medical conditions not mentioned above"
-                  value={profileData.otherMedicalConditions}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-          </div> */}
-
           {/* Section 5: Meal Plan Preferences */}
-          <div className="space-y-4 p-5 bg-muted/50 rounded-lg">
-            <h2 className="text-xl font-semibold">Meal Plan Preferences</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-3 p-4 sm:p-5 bg-muted/50 rounded-lg">
+            <h2 className="text-lg sm:text-xl font-semibold">Meal Plan Preferences</h2>
+            <div className="grid grid-cols-1 gap-3">
               <div className="space-y-2">
                 <Label>Preferred Meal Frequency</Label>
                 <Select
@@ -435,7 +327,7 @@ export default function ProfileSetup({ className, ...props }) {
                     handleSelectChange("mealFrequency", value)
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="How many meals per day?" />
                   </SelectTrigger>
                   <SelectContent>
@@ -447,59 +339,6 @@ export default function ProfileSetup({ className, ...props }) {
                 </Select>
               </div>
 
-              {/* <div className="space-y-2">
-                <Label>Plan Type</Label>
-                <Select
-                  value={profileData.planType}
-                  onValueChange={(value) =>
-                    handleSelectChange("planType", value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select plan type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="time-based">
-                      Time-Based (specific meal times)
-                    </SelectItem>
-                    <SelectItem value="flexible">
-                      Flexible (eat when you want)
-                    </SelectItem>
-                    <SelectItem value="intermittent-fasting">
-                      Intermittent Fasting
-                    </SelectItem>
-                    <SelectItem value="custom">Custom Schedule</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div> */}
-
-              {/* <div className="space-y-2">
-                <Label>Preferred Cuisine Region</Label>
-                <Select
-                  value={profileData.cuisineRegion}
-                  onValueChange={(value) =>
-                    handleSelectChange("cuisineRegion", value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your region" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="kerala">Kerala</SelectItem>
-                    <SelectItem value="north-indian">North Indian</SelectItem>
-                    <SelectItem value="south-indian">South Indian</SelectItem>
-                    <SelectItem value="east-indian">East Indian</SelectItem>
-                    <SelectItem value="west-indian">West Indian</SelectItem>
-                    <SelectItem value="continental">Continental</SelectItem>
-                    <SelectItem value="middle-eastern">
-                      Middle Eastern
-                    </SelectItem>
-                    <SelectItem value="asian">Asian</SelectItem>
-                    <SelectItem value="no-preference">No Preference</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div> */}
-
               <div className="space-y-2">
                 <Label>Plan Duration</Label>
                 <Select
@@ -508,7 +347,7 @@ export default function ProfileSetup({ className, ...props }) {
                     handleSelectChange("duration", value)
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select duration" />
                   </SelectTrigger>
                   <SelectContent>

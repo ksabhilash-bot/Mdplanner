@@ -34,9 +34,9 @@ export default function AiSuggestions() {
     try {
       const response = await getAiFoodSuggestions(moodDescription);
       console.log("API Response:", response);
-      
+
       setFoodSuggestions(response);
-      
+
       if (response.mealSuggestions?.length > 0) {
         setSelectedMeal(response.mealSuggestions[0]);
       }
@@ -76,9 +76,9 @@ export default function AiSuggestions() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
+    <div className="container mx-auto py-2 px-2 max-w-4xl">
       <div className="flex items-center gap-2 mb-6">
-        <Sparkles className="h-8 w-8 text-purple-500" />
+        <Sparkles className="h-8 w-8" />
         <h1 className="text-3xl font-bold">AI Meal Suggestions</h1>
       </div>
 
@@ -90,12 +90,12 @@ export default function AiSuggestions() {
             suggest personalized meal ideas.
           </CardDescription>
         </CardHeader>
+        {/* - I have low energy but want something healthy */}
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Textarea
               placeholder="Examples: 
 - I'm feeling stressed and need comfort food
-- I have low energy but want something healthy
 - I'm craving something sweet but nutritious
 - I have a headache and want something light
 - I'm celebrating and want a special treat"
@@ -108,7 +108,6 @@ export default function AiSuggestions() {
             <Button
               type="submit"
               disabled={isLoading || !moodDescription.trim()}
-              className="bg-purple-600 hover:bg-purple-700"
             >
               {isLoading ? (
                 <>
@@ -155,7 +154,7 @@ export default function AiSuggestions() {
                       {food.benefits}
                     </p>
                     <div className="mt-2">
-                      <span className="text-xs font-medium bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                      <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-1 rounded">
                         Nutrients: {food.nutrients}
                       </span>
                     </div>
@@ -169,14 +168,14 @@ export default function AiSuggestions() {
           {foodSuggestions.mealSuggestions && (
             <div className="mb-6">
               <h2 className="text-2xl font-semibold mb-4">Meal Suggestions</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 {foodSuggestions.mealSuggestions.map((meal, index) => (
                   <Card
                     key={index}
                     className={`cursor-pointer transition-all hover:shadow-md ${
                       selectedMeal === meal
-                        ? "border-purple-300 ring-2 ring-purple-100"
+                        ? "border-primary ring-2 ring-primary/20"
                         : ""
                     }`}
                     onClick={() => setSelectedMeal(meal)}
@@ -239,19 +238,21 @@ export default function AiSuggestions() {
                       <h3 className="font-semibold mb-2">Meal:</h3>
                       <p>{selectedMeal.meal}</p>
                     </div>
-                    
+
                     <div>
                       <h3 className="font-semibold mb-2">Hormonal Benefits:</h3>
                       <p>{selectedMeal.hormonalBenefits}</p>
                     </div>
-                    
+
                     {selectedMeal.keyIngredients && (
                       <div>
                         <h3 className="font-semibold mb-2">Key Ingredients:</h3>
                         <ul className="list-disc list-inside space-y-1">
-                          {selectedMeal.keyIngredients.map((ingredient, idx) => (
-                            <li key={idx}>{ingredient}</li>
-                          ))}
+                          {selectedMeal.keyIngredients.map(
+                            (ingredient, idx) => (
+                              <li key={idx}>{ingredient}</li>
+                            )
+                          )}
                         </ul>
                       </div>
                     )}
@@ -272,9 +273,16 @@ export default function AiSuggestions() {
             <CardContent>
               <div className="grid grid-cols-1 gap-3">
                 {foodSuggestions.avoidFoods.map((food, index) => (
-                  <div key={index} className="border rounded-lg p-3 bg-red-50">
-                    <h3 className="font-semibold text-red-800">{food.food}</h3>
-                    <p className="text-sm text-red-600 mt-1">{food.reason}</p>
+                  <div
+                    key={index}
+                    className="border rounded-lg p-3 bg-destructive/10"
+                  >
+                    <h3 className="font-semibold text-destructive">
+                      {food.food}
+                    </h3>
+                    <p className="text-sm text-destructive/80 mt-1">
+                      {food.reason}
+                    </p>
                   </div>
                 ))}
               </div>

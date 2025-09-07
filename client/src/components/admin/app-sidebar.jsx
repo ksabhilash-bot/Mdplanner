@@ -24,7 +24,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Brain } from "lucide-react";
-import { Shield, Lock, LayoutDashboard } from "lucide-react";
+import { Shield, Lock, LayoutDashboard, Utensils, List } from "lucide-react";
 
 const data = {
   user: {
@@ -39,9 +39,19 @@ const data = {
       icon: IconDashboard,
     },
     {
-      title: "User Management",
+      title: "User management",
       url: "/admin/usermanagement",
       icon: IconUsers,
+    },
+    {
+      title: "Manage foods",
+      url: "/admin/managefoods",
+      icon: Utensils, // Using Lucide React's Utensils icon for food management
+    },
+    {
+      title: "Add Foods",
+      url: "/admin/addfood",
+      icon: List, // Using Lucide React's List icon for foods list
     },
     // {
     //   title: "Meal Database",
@@ -98,7 +108,10 @@ export function AppSidebar({ ...props }) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <Link to="/admindashboard" className="flex items-center gap-2 px-1">
+              <Link
+                to="/admindashboard"
+                className="flex items-center gap-2 px-1"
+              >
                 <Shield className="h-5 w-5 text-primary" />
                 <span className="text-lg font-semibold text-primary">
                   MdPlanner Admin

@@ -14,15 +14,6 @@ export function SiteHeader() {
   const { user, isAuthenticated, checkAuth, logout } = useAuthStore();
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const runCheck = async () => {
-  //     await checkAuth();
-  //   };
-  //   runCheck();
-
-  //   // const { isAuthenticated, user } = useAuthStore.getState();
-  // }, []);
-
   useEffect(() => {
     if (!isAuthenticated) {
       console.log("🔒 User is not logged in");
@@ -33,7 +24,8 @@ export function SiteHeader() {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/"); // or window.location.reload()
+    navigate("/");
+    setIsMenuOpen(false); // Close menu after logout
   };
 
   return (
@@ -50,7 +42,7 @@ export function SiteHeader() {
           {/* Subtle gray vertical divider */}
           <div className="h-5 w-[0.5px] bg-gray-300 mx-1.5"></div>
           <Button
-            className="h-8 w-8 p-0 mr-1.5" // 0.375rem right margin
+            className="h-8 w-8 p-0 mr-1.5"
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
@@ -58,8 +50,8 @@ export function SiteHeader() {
             <SidebarIcon className="h-4 w-4" />
           </Button>
         </div>
-        {/* Right Side Controls */}
 
+        {/* Right Side Controls */}
         <div className="flex items-center gap-2 ml-auto">
           <nav className="hidden md:flex items-center gap-2">
             {isAuthenticated ? (
@@ -108,9 +100,9 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu - Fixed to overlay content */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-border bg-white dark:bg-background">
+        <div className="md:hidden fixed top-16 left-0 right-0 bg-white dark:bg-background border-b border-border shadow-lg z-50">
           <div className="px-3 py-2 space-y-1">
             <Link
               to="/"
@@ -119,13 +111,48 @@ export function SiteHeader() {
             >
               Home
             </Link>
-            <Link
-              to="/login"
-              className="block px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Sign In
-            </Link>
+            
+            {isAuthenticated ? (
+              <>
+                {/* <Link
+                  to="/user/userdashboard"
+                  className="block px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dashboard
+                </Link> */}
+                {/* <Link
+                  to="/user/profile"
+                  className="block px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Profile
+                </Link> */}
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="block px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  className="block px-3 py-2 rounded-md text-sm font-medium text-black hover:text-black hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-muted/50 transition-colors duration-200"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Register
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

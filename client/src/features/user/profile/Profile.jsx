@@ -268,12 +268,12 @@ export default function UserProfilePage() {
   ];
 
   return (
-    <div className="container mx-auto py-8 px-2">
+    <div className="container mx-auto py-2 px-2">
       <div className="max-w-6xl mx-auto">
         {/* Header with status and actions */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="flex flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
+            <h1 className="text-xl font-bold flex items-center gap-2">
               My Profile
               <Badge
                 variant={user?.isProfileComplete ? "default" : "secondary"}
@@ -481,43 +481,51 @@ export default function UserProfilePage() {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Nutrition Goals</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-700">
-                  {nutritionGoalsData?.calories || "--"}
-                </div>
-                <div className="text-sm text-blue-600">Calories</div>
-              </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-700">
-                  {nutritionGoalsData?.protein || "--"}g
-                </div>
-                <div className="text-sm text-green-600">Protein</div>
-              </div>
-              <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                <div className="text-2xl font-bold text-yellow-700">
-                  {nutritionGoalsData?.carbs || "--"}g
-                </div>
-                <div className="text-sm text-yellow-600">Carbs</div>
-              </div>
-              <div className="text-center p-3 bg-red-50 rounded-lg">
-                <div className="text-2xl font-bold text-red-700">
-                  {nutritionGoalsData?.fat || "--"}g
-                </div>
-                <div className="text-sm text-red-600">Fat</div>
-              </div>
-              <div className="text-center p-3 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-700">
-                  {nutritionGoalsData?.fiber || "--"}g
-                </div>
-                <div className="text-sm text-purple-600">Fiber</div>
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground mt-3 text-center">
-              These values are calculated based on your profile information
-            </p>
-          </CardContent>
+        <CardContent>
+  <div className="grid grid-cols-1 gap-4">
+    {/* Calories - full width on small screens */}
+    <div className="text-center p-3 bg-blue-50 rounded-lg">
+      <div className="text-2xl font-bold text-blue-700">
+        {nutritionGoalsData?.calories || "--"}
+      </div>
+      <div className="text-sm text-blue-600">Calories</div>
+    </div>
+
+    {/* Other macros - 2x2 grid on small, 4-column on md+ */}
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="text-center p-3 bg-green-50 rounded-lg">
+        <div className="text-2xl font-bold text-green-700">
+          {nutritionGoalsData?.protein || "--"}g
+        </div>
+        <div className="text-sm text-green-600">Protein</div>
+      </div>
+      <div className="text-center p-3 bg-yellow-50 rounded-lg">
+        <div className="text-2xl font-bold text-yellow-700">
+          {nutritionGoalsData?.carbs || "--"}g
+        </div>
+        <div className="text-sm text-yellow-600">Carbs</div>
+      </div>
+      <div className="text-center p-3 bg-red-50 rounded-lg">
+        <div className="text-2xl font-bold text-red-700">
+          {nutritionGoalsData?.fat || "--"}g
+        </div>
+        <div className="text-sm text-red-600">Fat</div>
+      </div>
+      <div className="text-center p-3 bg-purple-50 rounded-lg">
+        <div className="text-2xl font-bold text-purple-700">
+          {nutritionGoalsData?.fiber || "--"}g
+        </div>
+        <div className="text-sm text-purple-600">Fiber</div>
+      </div>
+    </div>
+  </div>
+
+  <p className="text-sm text-muted-foreground mt-3 text-center">
+    These values are calculated based on your profile information
+  </p>
+</CardContent>
+
+
         </Card>
       </div>
     </div>

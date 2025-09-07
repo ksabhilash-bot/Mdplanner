@@ -662,16 +662,12 @@ export const profileSetup = async (req, res) => {
     const userProfileData = req.body;
     console.log("userprofile data: ", userProfileData);
 
-    console.log("hi");
-
     // 1️⃣ Save Profile
     const profile = new Profile({
       ...userProfileData,
       user: userId,
     });
     await profile.save();
-
-    console.log("Hi");
 
     // 2️⃣ Calculate calories and macronutrients (without AI meal plan generation)
     // Calculate BMR
@@ -879,52 +875,6 @@ export const profileSetup = async (req, res) => {
 
     console.log("meal distribution: ", mealDistribution);
 
-    /* 
-    // 🚫 COMMENTED OUT - AI Meal Plan Generation
-    const { mealPlanData, targetCalories } = await generateMealPlan(
-      userProfileData
-    );
-    console.log("ooo", mealPlanData);
-
-    // Calculate start and end dates
-    const startDate = new Date();
-    startDate.setHours(0, 0, 0, 0);
-
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + mealPlanData.length - 1);
-    endDate.setHours(23, 59, 59, 999);
-
-    // Add real dates to meals
-    const mealsWithDates = mealPlanData.map((meal, index) => {
-      const mealDate = new Date(startDate);
-      mealDate.setDate(startDate.getDate() + index);
-
-      return {
-        ...meal,
-        date: mealDate,
-      };
-    });
-
-    const mealPlan = new MealPlan({
-      user: userId,
-      profileSnapshot: userProfileData,
-      startDate: startDate,
-      endDate: endDate,
-      targetCalories,
-      meals: mealsWithDates,
-    });
-
-    try {
-      await mealPlan.save();
-      console.log("daa");
-    } catch (saveErr) {
-      console.error("MealPlan save error:", saveErr);
-      throw saveErr;
-    }
-
-    console.log("daa");
-    */
-
     // 4️⃣ Save Nutrition Goal
     await NutritionGoal.updateMany(
       { userId, isActive: true },
@@ -935,9 +885,30 @@ export const profileSetup = async (req, res) => {
     const startDate = new Date();
     const endDate = new Date(startDate);
 
-    // Parse duration from userProfileData (e.g., "3-day", "7-day", "14-day")
-    const durationMatch = userProfileData.duration.match(/(\d+)-day/);
-    const durationDays = durationMatch ? parseInt(durationMatch[1]) : 7; // default to 7 days if parsing fails
+    // Parse duration from userProfileData - handle both day and month formats
+    let durationDays = 7; // default to 7 days
+    
+    if (userProfileData.duration) {
+      // Check for day format (e.g., "3-day", "7-day")
+      const dayMatch = userProfileData.duration.match(/(\d+)-day/);
+      if (dayMatch) {
+        durationDays = parseInt(dayMatch[1]);
+      } 
+      // Check for week format (e.g., "1-week", "2-weeks")
+      else if (userProfileData.duration.includes('week')) {
+        const weekMatch = userProfileData.duration.match(/(\d+)-week/);
+        if (weekMatch) {
+          durationDays = parseInt(weekMatch[1]) * 7;
+        }
+      }
+      // Check for month format (e.g., "1-month", "3-months")
+      else if (userProfileData.duration.includes('month')) {
+        const monthMatch = userProfileData.duration.match(/(\d+)-month/);
+        if (monthMatch) {
+          durationDays = parseInt(monthMatch[1]) * 30; // Approximate 30 days per month
+        }
+      }
+    }
 
     endDate.setDate(startDate.getDate() + durationDays - 1);
 
@@ -948,9 +919,9 @@ export const profileSetup = async (req, res) => {
       carbs: macros.carbs,
       fat: macros.fat,
       fiber: macros.fiber,
-      mealDistribution, // 👈 save it here
+      mealDistribution,
       startDate: startDate,
-      endDate: endDate, // 👈 add end date here
+      endDate: endDate,
       isActive: true,
     });
     await nutritionGoal.save();
@@ -961,12 +932,10 @@ export const profileSetup = async (req, res) => {
       {
         isProfileComplete: true,
         profile: profile._id,
-        // $push: { mealPlans: mealPlan._id }, // Commented out
       },
       { new: true }
     );
 
-    // console.log("mp: ", mealPlan);
     console.log("nutrition:", targetCalories, macros);
 
     res.status(200).json({
@@ -975,7 +944,6 @@ export const profileSetup = async (req, res) => {
       profile,
       nutritionGoal,
       extraInfo: { bmr, tdee },
-      // mealPlan, // Commented out
     });
   } catch (err) {
     res.status(400).json({ error: err.message });
