@@ -18,10 +18,10 @@ import Reports from "@/features/user/Reports";
 import Notifications from "@/features/user/Notifications";
 
 // Admin Pages
-import AdminDashboard from "@/features/admin/AdminDashboard";
-import UserManagement from "@/features/admin/UserManagement";
-import AddFood from "@/features/admin/AddFood";
-import FoodManagement from "@/features/admin/FoodManagement";
+import AdminDashboard from "@/features/admin/dashboard/AdminDashboard";
+import UserManagement from "@/features/admin/user/UserManagement";
+import AddFood from "@/features/admin/food/AddFood";
+import FoodManagement from "@/features/admin/food/FoodManagement";
 
 // Layouts
 import UserLayout from "@/layouts/UserLayout";

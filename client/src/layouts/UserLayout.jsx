@@ -6,7 +6,7 @@ import NavBar from "@/components/ui/navbar";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/auth.store";
 import { useEffect } from "react";
-import { FullPageSpinner } from "@/components/full-page-spinner";
+import { FullPageSpinner } from "@/components/others/full-page-spinner";
 
 export const iframeHeight = "800px";
 

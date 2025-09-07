@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { trackMeal, getFoodsByMeal, getAllFoods } from "./meal.api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { FullPageSpinner } from "@/components/full-page-spinner";
+import { FullPageSpinner } from "@/components/others/full-page-spinner";
 import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Check, Plus, Loader2 } from "lucide-react";
@@ -303,7 +303,9 @@ export default function MealTracking() {
       let allFoodsInCategory = [];
       Object.values(organizedFoods[category]).forEach((subcategoryFoods) => {
         const filtered = subcategoryFoods.filter((food) => {
-          const mealTypes = Array.isArray(food.meals) ? food.meals : [food.meals];
+          const mealTypes = Array.isArray(food.meals)
+            ? food.meals
+            : [food.meals];
           return mealTypes.includes(mealType);
         });
         allFoodsInCategory = [...allFoodsInCategory, ...filtered];

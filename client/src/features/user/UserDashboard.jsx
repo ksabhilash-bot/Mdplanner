@@ -16,7 +16,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { FullPageSpinner } from "@/components/full-page-spinner";
+import { FullPageSpinner } from "@/components/others/full-page-spinner";
 import { useState, useEffect } from "react";
 import {
   LineChart,
@@ -505,114 +505,114 @@ export default function NutritionDashboard() {
           </Card>
         </div>
 
-       {/* Foods Eaten Section - Full width below */}
-<div className="lg:col-span-3">
-  <Card>
-    <CardHeader>
-      <CardTitle>Foods Eaten Today</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {["breakfast", "lunch", "snack", "dinner"].map((mealType) => {
-          const isCompleted = isMealCompleted(mealType);
-          const foods = getMealFoodsWithQuantity(mealType);
-          const mealIcons = {
-            breakfast: Coffee,
-            lunch: Sun,
-            snack: Apple,
-            dinner: Moon,
-          };
-          const Icon = mealIcons[mealType];
-          const consumed = getMealConsumed(mealType);
-          const target = mealDistribution[mealType] || {};
+        {/* Foods Eaten Section - Full width below */}
+        <div className="lg:col-span-3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Foods Eaten Today</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {["breakfast", "lunch", "snack", "dinner"].map((mealType) => {
+                  const isCompleted = isMealCompleted(mealType);
+                  const foods = getMealFoodsWithQuantity(mealType);
+                  const mealIcons = {
+                    breakfast: Coffee,
+                    lunch: Sun,
+                    snack: Apple,
+                    dinner: Moon,
+                  };
+                  const Icon = mealIcons[mealType];
+                  const consumed = getMealConsumed(mealType);
+                  const target = mealDistribution[mealType] || {};
 
-          return (
-            <div
-              key={mealType}
-              className={`p-4 rounded-lg border ${
-                isCompleted
-                  ? "bg-green-50 border-green-200"
-                  : "bg-gray-50 border-gray-200"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Icon
-                    className={`w-5 h-5 ${
-                      isCompleted ? "text-green-600" : "text-gray-400"
-                    }`}
-                  />
-                  <h3 className="text-lg font-medium capitalize text-gray-900">
-                    {mealType}
-                  </h3>
-                </div>
-              </div>
+                  return (
+                    <div
+                      key={mealType}
+                      className={`p-4 rounded-lg border ${
+                        isCompleted
+                          ? "bg-green-50 border-green-200"
+                          : "bg-gray-50 border-gray-200"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Icon
+                            className={`w-5 h-5 ${
+                              isCompleted ? "text-green-600" : "text-gray-400"
+                            }`}
+                          />
+                          <h3 className="text-lg font-medium capitalize text-gray-900">
+                            {mealType}
+                          </h3>
+                        </div>
+                      </div>
 
-              <div className="mb-3">
-                <div className="flex justify-between text-sm text-gray-600 mb-1">
-                  <span>Calories</span>
-                  <span>
-                    {consumed.calories || 0} / {target.calories || 0}
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className={`h-2 rounded-full ${
-                      isCompleted ? "bg-green-500" : "bg-gray-300"
-                    }`}
-                    style={{
-                      width: `${Math.min(
-                        100,
-                        target.calories
-                          ? (consumed.calories / target.calories) * 100
-                          : 0
-                      )}%`,
-                    }}
-                  ></div>
-                </div>
-              </div>
-
-              {isCompleted ? (
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <h4 className="text-sm font-medium text-gray-700">
-                      Foods ({foods.length})
-                    </h4>
-                  </div>
-                  <div className="space-y-1 max-h-40 overflow-y-auto">
-                    {foods.map((food, index) => (
-                      <div
-                        key={index}
-                        className="flex justify-between items-center text-sm bg-white p-2 rounded border"
-                      >
-                        <div>
-                          <span className="font-medium text-gray-900 block">
-                            {food.foodName}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {food.quantity} {food.unit}
-                            {food.quantity > 1 ? "s" : ""}
+                      <div className="mb-3">
+                        <div className="flex justify-between text-sm text-gray-600 mb-1">
+                          <span>Calories</span>
+                          <span>
+                            {consumed.calories || 0} / {target.calories || 0}
                           </span>
                         </div>
-                        <span className="text-gray-600 font-medium">
-                          {food.calories} cal
-                        </span>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              isCompleted ? "bg-green-500" : "bg-gray-300"
+                            }`}
+                            style={{
+                              width: `${Math.min(
+                                100,
+                                target.calories
+                                  ? (consumed.calories / target.calories) * 100
+                                  : 0
+                              )}%`,
+                            }}
+                          ></div>
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500 italic text-center py-4">
-                  No foods logged for {mealType}
-                </p>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </CardContent>
-  </Card>
-</div>
+
+                      {isCompleted ? (
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <h4 className="text-sm font-medium text-gray-700">
+                              Foods ({foods.length})
+                            </h4>
+                          </div>
+                          <div className="space-y-1 max-h-40 overflow-y-auto">
+                            {foods.map((food, index) => (
+                              <div
+                                key={index}
+                                className="flex justify-between items-center text-sm bg-white p-2 rounded border"
+                              >
+                                <div>
+                                  <span className="font-medium text-gray-900 block">
+                                    {food.foodName}
+                                  </span>
+                                  <span className="text-xs text-gray-500">
+                                    {food.quantity} {food.unit}
+                                    {food.quantity > 1 ? "s" : ""}
+                                  </span>
+                                </div>
+                                <span className="text-gray-600 font-medium">
+                                  {food.calories} cal
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500 italic text-center py-4">
+                          No foods logged for {mealType}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -314,7 +314,7 @@ export default function AddFood() {
                     <div>
                       <Label htmlFor={`protein-${index}`}>Protein (g) *</Label>
                       <Input
-                       className="mt-2"
+                        className="mt-2"
                         id={`protein-${index}`}
                         type="number"
                         value={serving.protein}
@@ -333,7 +333,7 @@ export default function AddFood() {
                     <div>
                       <Label htmlFor={`fat-${index}`}>Fat (g) *</Label>
                       <Input
-                       className="mt-2"
+                        className="mt-2"
                         id={`fat-${index}`}
                         type="number"
                         value={serving.fat}
@@ -355,7 +355,7 @@ export default function AddFood() {
                     <div>
                       <Label htmlFor={`carbs-${index}`}>Carbs (g) *</Label>
                       <Input
-                       className="mt-2"
+                        className="mt-2"
                         id={`carbs-${index}`}
                         type="number"
                         value={serving.carbs}
@@ -374,7 +374,7 @@ export default function AddFood() {
                     <div>
                       <Label htmlFor={`fiber-${index}`}>Fiber (g) *</Label>
                       <Input
-                       className="mt-2"
+                        className="mt-2"
                         id={`fiber-${index}`}
                         type="number"
                         value={serving.fiber}

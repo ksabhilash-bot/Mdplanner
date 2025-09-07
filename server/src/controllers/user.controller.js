@@ -1,21 +1,14 @@
 import Profile from "../models/Profile.js";
-// import MealPlan from "../models/NutritionGoal.js";
 import User from "../models/User.js";
-import { generateMealPlan } from "../services/user.service.js";
-
 import { GoogleGenAI } from "@google/genai";
-import { buildMealPlanPrompt } from "../utils/buildMealPlanPrompt.js";
 import { calculateBmr } from "../utils/calculateBmr.js";
 import { calculateTdee } from "../utils/calculateTdee.js";
 import { adjustCaloriesForGoal } from "../utils/adjustCaloriesForGoal.js";
 import { calculateMacros } from "../utils/calculateMacros.js";
-
 import { NutritionGoal } from "../models/NutritionGoal.js";
 import Food from "../models/Food.js"; // adjust path if needed
-
 import { MealLog } from "../models/MealLog.js";
 import Notification from "../models/Notification.js";
-
 import { buildFoodSuggestionsPrompt } from "../utils/buildFoodSuggestionsPrompt.js";
 
 export const aiFoodSuggestions = async (req, res) => {

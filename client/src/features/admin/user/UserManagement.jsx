@@ -55,7 +55,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { fetchUsers, createUser, updateUser, deleteUser } from "./admin.api";
+import { fetchUsers, createUser, updateUser, deleteUser } from "./user.api";
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);

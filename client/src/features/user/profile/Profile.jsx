@@ -4,7 +4,7 @@ import { useAuthStore } from "@/features/auth/auth.store";
 import { useProfileStore } from "../profile/profile.store";
 import { useQuery } from "@tanstack/react-query";
 import { fetchUserProfile } from "../profile/profile.api";
-import { FullPageSpinner } from "@/components/full-page-spinner";
+import { FullPageSpinner } from "@/components/others/full-page-spinner";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -481,51 +481,49 @@ export default function UserProfilePage() {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Nutrition Goals</CardTitle>
           </CardHeader>
-        <CardContent>
-  <div className="grid grid-cols-1 gap-4">
-    {/* Calories - full width on small screens */}
-    <div className="text-center p-3 bg-blue-50 rounded-lg">
-      <div className="text-2xl font-bold text-blue-700">
-        {nutritionGoalsData?.calories || "--"}
-      </div>
-      <div className="text-sm text-blue-600">Calories</div>
-    </div>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-4">
+              {/* Calories - full width on small screens */}
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-700">
+                  {nutritionGoalsData?.calories || "--"}
+                </div>
+                <div className="text-sm text-blue-600">Calories</div>
+              </div>
 
-    {/* Other macros - 2x2 grid on small, 4-column on md+ */}
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div className="text-center p-3 bg-green-50 rounded-lg">
-        <div className="text-2xl font-bold text-green-700">
-          {nutritionGoalsData?.protein || "--"}g
-        </div>
-        <div className="text-sm text-green-600">Protein</div>
-      </div>
-      <div className="text-center p-3 bg-yellow-50 rounded-lg">
-        <div className="text-2xl font-bold text-yellow-700">
-          {nutritionGoalsData?.carbs || "--"}g
-        </div>
-        <div className="text-sm text-yellow-600">Carbs</div>
-      </div>
-      <div className="text-center p-3 bg-red-50 rounded-lg">
-        <div className="text-2xl font-bold text-red-700">
-          {nutritionGoalsData?.fat || "--"}g
-        </div>
-        <div className="text-sm text-red-600">Fat</div>
-      </div>
-      <div className="text-center p-3 bg-purple-50 rounded-lg">
-        <div className="text-2xl font-bold text-purple-700">
-          {nutritionGoalsData?.fiber || "--"}g
-        </div>
-        <div className="text-sm text-purple-600">Fiber</div>
-      </div>
-    </div>
-  </div>
+              {/* Other macros - 2x2 grid on small, 4-column on md+ */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-3 bg-green-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-700">
+                    {nutritionGoalsData?.protein || "--"}g
+                  </div>
+                  <div className="text-sm text-green-600">Protein</div>
+                </div>
+                <div className="text-center p-3 bg-yellow-50 rounded-lg">
+                  <div className="text-2xl font-bold text-yellow-700">
+                    {nutritionGoalsData?.carbs || "--"}g
+                  </div>
+                  <div className="text-sm text-yellow-600">Carbs</div>
+                </div>
+                <div className="text-center p-3 bg-red-50 rounded-lg">
+                  <div className="text-2xl font-bold text-red-700">
+                    {nutritionGoalsData?.fat || "--"}g
+                  </div>
+                  <div className="text-sm text-red-600">Fat</div>
+                </div>
+                <div className="text-center p-3 bg-purple-50 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-700">
+                    {nutritionGoalsData?.fiber || "--"}g
+                  </div>
+                  <div className="text-sm text-purple-600">Fiber</div>
+                </div>
+              </div>
+            </div>
 
-  <p className="text-sm text-muted-foreground mt-3 text-center">
-    These values are calculated based on your profile information
-  </p>
-</CardContent>
-
-
+            <p className="text-sm text-muted-foreground mt-3 text-center">
+              These values are calculated based on your profile information
+            </p>
+          </CardContent>
         </Card>
       </div>
     </div>

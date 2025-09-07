@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "./auth.store";
-import { FullPageSpinner } from "@/components/full-page-spinner";
+import { FullPageSpinner } from "@/components/others/full-page-spinner";
 
 export default function ProtectedRoute({ children, adminOnly = false }) {
   const navigate = useNavigate();

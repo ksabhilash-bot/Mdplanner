@@ -2,7 +2,7 @@ import { ThemeProvider } from "@/components/common/ThemeProvider";
 import AppRouter from "./router/AppRouter"; // 👈 move routes here
 import { useEffect } from "react";
 import { useAuthStore } from "@/features/auth/auth.store";
-import { FullPageSpinner } from "./components/full-page-spinner";
+import { FullPageSpinner } from "./components/others/full-page-spinner";
 
 export default function App() {
   const { checkAuth, loading } = useAuthStore();
