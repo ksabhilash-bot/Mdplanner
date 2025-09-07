@@ -14,7 +14,7 @@ import {
   ChefHat,
   Sparkles,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
