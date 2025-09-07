@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { Brain, Menu, X, ChevronDown, User, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/common/ModeToggle";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/auth.store";
