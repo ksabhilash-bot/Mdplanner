@@ -12,8 +12,8 @@ import UserDashboard from "@/features/user/UserDashboard";
 import Profile from "@/features/user/profile/Profile";
 import MealPlan from "@/features/user/meal/MealPlan";
 // import TrackFood from "@/features/user/meal/EditMealPlan";
-import Progress from "@/features/user/Progress";
-import Reports from "@/features/user/Reports";
+// import Progress from "@/features/user/Progress";
+// import Reports from "@/features/user/Reports";
 
 import Notifications from "@/features/user/Notifications";
 
