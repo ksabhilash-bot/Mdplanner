@@ -99,7 +99,7 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         /> */}
-        <Route
+        {/* <Route
           path="/user/progress"
           element={
             <ProtectedRoute>
@@ -114,7 +114,7 @@ export default function AppRouter() {
               <Reports />
             </ProtectedRoute>
           }
-        />
+        /> */}
       </Route>
 
       {/* Admin routes */}
