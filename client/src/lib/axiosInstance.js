@@ -1,25 +1,21 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://mdplanner-backend.onrender.com",
-  withCredentials: true,
+  baseURL:
+    import.meta.env.VITE_API_URL || "https://mdplanner-backend.onrender.com",
+  withCredentials: true, // required if using cookies
 });
 
-// Add request interceptor to include token
+// 🔑 Add token automatically to every request
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Get token from localStorage, sessionStorage, or your auth context
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    
+    const token = localStorage.getItem("token"); // or sessionStorage
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default axiosInstance;
