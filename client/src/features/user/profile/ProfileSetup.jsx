@@ -120,26 +120,32 @@ export default function ProfileSetup({ className, ...props }) {
   };
 
   return (
-    <div className="flex justify-center items-start min-h-screen py-4 px-2 sm:py-8 sm:px-4">
+    <div className="flex justify-center items-start min-h-screen py-2 px-1 sm:py-8 sm:px-4 overflow-x-hidden">
       <form
         onSubmit={handleSubmit}
         className={cn(
-          "flex flex-col gap-4 w-full max-w-3xl bg-background p-4 sm:p-6 rounded-lg border border-border shadow-sm",
+          "flex flex-col gap-3 w-full max-w-3xl bg-background p-3 sm:p-6 rounded-lg border border-border shadow-sm mx-2",
           className
         )}
         {...props}
       >
-        <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-xl sm:text-2xl font-bold">Personalize Your Diet</h1>
+        <div className="flex flex-col items-center gap-2 text-center mb-2">
+          <h1 className="text-lg sm:text-2xl font-bold">
+            Personalize Your Diet
+          </h1>
         </div>
 
-        <div className="grid gap-4">
+        <div className="grid gap-3">
           {/* Section 1: Basic Information */}
-          <div className="space-y-3 p-4 sm:p-5 bg-muted/50 rounded-lg">
-            <h2 className="text-lg sm:text-xl font-semibold">Basic Information</h2>
+          <div className="space-y-3 p-3 sm:p-5 bg-muted/50 rounded-lg">
+            <h2 className="text-base sm:text-xl font-semibold">
+              Basic Information
+            </h2>
             <div className="grid grid-cols-1 gap-3">
               <div className="space-y-2">
-                <Label htmlFor="age">Age *</Label>
+                <Label htmlFor="age" className="text-sm sm:text-base">
+                  Age *
+                </Label>
                 <Input
                   id="age"
                   type="number"
@@ -148,12 +154,14 @@ export default function ProfileSetup({ className, ...props }) {
                   required
                   value={profileData.age}
                   onChange={handleChange}
-                  className="w-full"
+                  className="w-full text-sm sm:text-base"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="height">Height (cm) *</Label>
+                <Label htmlFor="height" className="text-sm sm:text-base">
+                  Height (cm) *
+                </Label>
                 <Input
                   id="height"
                   type="number"
@@ -162,12 +170,14 @@ export default function ProfileSetup({ className, ...props }) {
                   required
                   value={profileData.height}
                   onChange={handleChange}
-                  className="w-full"
+                  className="w-full text-sm sm:text-base"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="weight">Weight (kg) *</Label>
+                <Label htmlFor="weight" className="text-sm sm:text-base">
+                  Weight (kg) *
+                </Label>
                 <Input
                   id="weight"
                   type="number"
@@ -176,25 +186,34 @@ export default function ProfileSetup({ className, ...props }) {
                   required
                   value={profileData.weight}
                   onChange={handleChange}
-                  className="w-full"
+                  className="w-full text-sm sm:text-base"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label>Gender *</Label>
+              <Label className="text-sm sm:text-base">Gender *</Label>
               <Select
                 value={profileData.gender}
                 onValueChange={(value) => handleSelectChange("gender", value)}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full text-sm sm:text-base">
                   <SelectValue placeholder="Select your gender" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                  <SelectItem value="prefer-not-to-say">
+                  <SelectItem value="male" className="text-sm sm:text-base">
+                    Male
+                  </SelectItem>
+                  <SelectItem value="female" className="text-sm sm:text-base">
+                    Female
+                  </SelectItem>
+                  <SelectItem value="other" className="text-sm sm:text-base">
+                    Other
+                  </SelectItem>
+                  <SelectItem
+                    value="prefer-not-to-say"
+                    className="text-sm sm:text-base"
+                  >
                     Prefer not to say
                   </SelectItem>
                 </SelectContent>
@@ -203,35 +222,40 @@ export default function ProfileSetup({ className, ...props }) {
           </div>
 
           {/* Section 2: Activity & Goals */}
-          <div className="space-y-3 p-4 sm:p-5 bg-muted/50 rounded-lg">
-            <h2 className="text-lg sm:text-xl font-semibold">Activity & Goals</h2>
+          <div className="space-y-3 p-3 sm:p-5 bg-muted/50 rounded-lg">
+            <h2 className="text-base sm:text-xl font-semibold">
+              Activity & Goals
+            </h2>
 
             {/* Activity Level */}
             <div className="space-y-2">
-              <Label>Activity Level *</Label>
+              <Label className="text-sm sm:text-base">Activity Level *</Label>
               <Select
                 value={profileData.activityLevel}
                 onValueChange={(value) =>
                   handleSelectChange("activityLevel", value)
                 }
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full text-sm sm:text-base">
                   <SelectValue placeholder="Select your activity level" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="sedentary">
+                <SelectContent className="max-h-60 overflow-y-auto">
+                  <SelectItem
+                    value="sedentary"
+                    className="text-sm sm:text-base"
+                  >
                     Sedentary (little or no exercise)
                   </SelectItem>
-                  <SelectItem value="light">
+                  <SelectItem value="light" className="text-sm sm:text-base">
                     Lightly active (light exercise 1-3 days/week)
                   </SelectItem>
-                  <SelectItem value="moderate">
+                  <SelectItem value="moderate" className="text-sm sm:text-base">
                     Moderately active (moderate exercise 3-5 days/week)
                   </SelectItem>
-                  <SelectItem value="active">
+                  <SelectItem value="active" className="text-sm sm:text-base">
                     Very active (hard exercise 6-7 days/week)
                   </SelectItem>
-                  <SelectItem value="extreme">
+                  <SelectItem value="extreme" className="text-sm sm:text-base">
                     Extremely active (very hard exercise & physical job)
                   </SelectItem>
                 </SelectContent>
@@ -240,20 +264,33 @@ export default function ProfileSetup({ className, ...props }) {
 
             {/* Fitness Goal */}
             <div className="space-y-2">
-              <Label>Fitness Goal *</Label>
+              <Label className="text-sm sm:text-base">Fitness Goal *</Label>
               <Select
                 value={profileData.fitnessGoal}
                 onValueChange={(value) =>
                   handleSelectChange("fitnessGoal", value)
                 }
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full text-sm sm:text-base">
                   <SelectValue placeholder="Select your fitness goal" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="weight-loss">Weight Loss</SelectItem>
-                  <SelectItem value="weight-gain">Weight Gain</SelectItem>
-                  <SelectItem value="weight-maintain">
+                  <SelectItem
+                    value="weight-loss"
+                    className="text-sm sm:text-base"
+                  >
+                    Weight Loss
+                  </SelectItem>
+                  <SelectItem
+                    value="weight-gain"
+                    className="text-sm sm:text-base"
+                  >
+                    Weight Gain
+                  </SelectItem>
+                  <SelectItem
+                    value="weight-maintain"
+                    className="text-sm sm:text-base"
+                  >
                     Maintain Weight
                   </SelectItem>
                 </SelectContent>
@@ -264,7 +301,7 @@ export default function ProfileSetup({ className, ...props }) {
             {(profileData.fitnessGoal === "weight-loss" ||
               profileData.fitnessGoal === "weight-gain") && (
               <div className="space-y-2">
-                <Label htmlFor="targetWeight">
+                <Label htmlFor="targetWeight" className="text-sm sm:text-base">
                   {profileData.fitnessGoal === "weight-loss"
                     ? "Target Weight Loss (kg)"
                     : "Target Weight Gain (kg)"}
@@ -278,24 +315,25 @@ export default function ProfileSetup({ className, ...props }) {
                   }
                   value={profileData.targetWeight}
                   onChange={handleChange}
-                  className="w-full"
+                  className="w-full text-sm sm:text-base"
                 />
               </div>
             )}
           </div>
 
           {/* Section 3: Dietary Preferences */}
-          <div className="space-y-3 p-4 sm:p-5 bg-muted/50 rounded-lg">
-            <h2 className="text-lg sm:text-xl font-semibold">Dietary Preferences</h2>
+          <div className="space-y-3 p-3 sm:p-5 bg-muted/50 rounded-lg">
+            <h2 className="text-base sm:text-xl font-semibold">
+              Dietary Preferences
+            </h2>
 
             <div className="space-y-3">
               <div className="space-y-2">
-                <Label>Diet Preference (Select One)</Label>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "Vegetarian",
-                    "Non-Vegetarian",
-                  ].map((diet) => (
+                <Label className="text-sm sm:text-base">
+                  Diet Preference (Select One)
+                </Label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  {["Vegetarian", "Non-Vegetarian"].map((diet) => (
                     <Button
                       key={diet}
                       type="button"
@@ -305,7 +343,7 @@ export default function ProfileSetup({ className, ...props }) {
                           : "outline"
                       }
                       onClick={() => handleSelectChange("dietPreference", diet)}
-                      className="h-8 px-3 text-xs flex-1 sm:flex-none"
+                      className="h-8 px-2 text-xs flex-1 sm:flex-none"
                     >
                       {diet}
                     </Button>
@@ -316,54 +354,91 @@ export default function ProfileSetup({ className, ...props }) {
           </div>
 
           {/* Section 5: Meal Plan Preferences */}
-          <div className="space-y-3 p-4 sm:p-5 bg-muted/50 rounded-lg">
-            <h2 className="text-lg sm:text-xl font-semibold">Meal Plan Preferences</h2>
+          <div className="space-y-3 p-3 sm:p-5 bg-muted/50 rounded-lg">
+            <h2 className="text-base sm:text-xl font-semibold">
+              Meal Plan Preferences
+            </h2>
             <div className="grid grid-cols-1 gap-3">
               <div className="space-y-2">
-                <Label>Preferred Meal Frequency</Label>
+                <Label className="text-sm sm:text-base">
+                  Preferred Meal Frequency
+                </Label>
                 <Select
                   value={profileData.mealFrequency}
                   onValueChange={(value) =>
                     handleSelectChange("mealFrequency", value)
                   }
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full text-sm sm:text-base">
                     <SelectValue placeholder="How many meals per day?" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="3">3 meals</SelectItem>
-                    <SelectItem value="4">4 meals</SelectItem>
-                    <SelectItem value="5">5 meals</SelectItem>
-                    <SelectItem value="6">6 small meals</SelectItem>
+                    <SelectItem value="3" className="text-sm sm:text-base">
+                      3 meals
+                    </SelectItem>
+                    <SelectItem value="4" className="text-sm sm:text-base">
+                      4 meals
+                    </SelectItem>
+                    <SelectItem value="5" className="text-sm sm:text-base">
+                      5 meals
+                    </SelectItem>
+                    <SelectItem value="6" className="text-sm sm:text-base">
+                      6 small meals
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label>Plan Duration</Label>
+                <Label className="text-sm sm:text-base">Plan Duration</Label>
                 <Select
                   value={profileData.duration}
                   onValueChange={(value) =>
                     handleSelectChange("duration", value)
                   }
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full text-sm sm:text-base">
                     <SelectValue placeholder="Select duration" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1-day">1 Day Trial</SelectItem>
-                    <SelectItem value="3-day">3 Day</SelectItem>
-                    <SelectItem value="1-week">1 Week</SelectItem>
-                    <SelectItem value="2-weeks">2 Weeks</SelectItem>
-                    <SelectItem value="1-month">1 Month</SelectItem>
-                    <SelectItem value="3-months">3 Months</SelectItem>
+                    <SelectItem value="1-day" className="text-sm sm:text-base">
+                      1 Day Trial
+                    </SelectItem>
+                    <SelectItem value="3-day" className="text-sm sm:text-base">
+                      3 Day
+                    </SelectItem>
+                    <SelectItem value="1-week" className="text-sm sm:text-base">
+                      1 Week
+                    </SelectItem>
+                    <SelectItem
+                      value="2-weeks"
+                      className="text-sm sm:text-base"
+                    >
+                      2 Weeks
+                    </SelectItem>
+                    <SelectItem
+                      value="1-month"
+                      className="text-sm sm:text-base"
+                    >
+                      1 Month
+                    </SelectItem>
+                    <SelectItem
+                      value="3-months"
+                      className="text-sm sm:text-base"
+                    >
+                      3 Months
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
           </div>
 
-          <Button type="submit" className="w-full mt-2" disabled={isPending}>
+          <Button
+            type="submit"
+            className="w-full mt-2 text-sm sm:text-base"
+            disabled={isPending}
+          >
             {isPending ? "Creating..." : "Create my profile"}
           </Button>
         </div>
