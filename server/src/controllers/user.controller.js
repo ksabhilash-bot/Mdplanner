@@ -880,22 +880,22 @@ export const profileSetup = async (req, res) => {
 
     // Parse duration from userProfileData - handle both day and month formats
     let durationDays = 7; // default to 7 days
-    
+
     if (userProfileData.duration) {
       // Check for day format (e.g., "3-day", "7-day")
       const dayMatch = userProfileData.duration.match(/(\d+)-day/);
       if (dayMatch) {
         durationDays = parseInt(dayMatch[1]);
-      } 
+      }
       // Check for week format (e.g., "1-week", "2-weeks")
-      else if (userProfileData.duration.includes('week')) {
+      else if (userProfileData.duration.includes("week")) {
         const weekMatch = userProfileData.duration.match(/(\d+)-week/);
         if (weekMatch) {
           durationDays = parseInt(weekMatch[1]) * 7;
         }
       }
       // Check for month format (e.g., "1-month", "3-months")
-      else if (userProfileData.duration.includes('month')) {
+      else if (userProfileData.duration.includes("month")) {
         const monthMatch = userProfileData.duration.match(/(\d+)-month/);
         if (monthMatch) {
           durationDays = parseInt(monthMatch[1]) * 30; // Approximate 30 days per month
