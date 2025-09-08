@@ -1,8 +1,11 @@
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+
 export const authMiddleware = async (req, res, next) => {
   try {
     console.log("All cookies received:", req.cookies); // Debug all cookies
     console.log("Headers:", req.headers.cookie); // Debug cookie header
-    
+
     const token = req.cookies.token;
 
     if (!token) {
@@ -13,7 +16,7 @@ export const authMiddleware = async (req, res, next) => {
     }
 
     console.log("✅ Token found:", token.substring(0, 20) + "...");
-    
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log("✅ Token decoded:", decoded);
 
