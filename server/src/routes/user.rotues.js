@@ -11,6 +11,8 @@ import {
   markNotificationAsRead,
   updateProfile,
   aiFoodSuggestions,
+  extendPlan,
+  regeneratePlan,
 } from "../controllers/user.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
@@ -31,5 +33,11 @@ router.get("/notifications", authMiddleware, getNotifications);
 router.patch("/notifications/:id/read", authMiddleware, markNotificationAsRead);
 
 router.post("/aifoodsuggestions", authMiddleware, aiFoodSuggestions);
+router.patch("/nutrition-goals/extend/:goalId", authMiddleware, extendPlan);
+router.post(
+  "/nutrition-goals/regenerate/:goalId",
+  authMiddleware,
+  regeneratePlan
+);
 
 export default router;

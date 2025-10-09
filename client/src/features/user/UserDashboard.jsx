@@ -31,9 +31,11 @@ import {
   Bar,
 } from "recharts";
 import {
+  extendPlan,
   getDailyNutrition,
   getNutritionHistory,
   getUserNutritionGoals,
+  regeneratePlan,
 } from "./nutrition.api";
 
 import { useAuthStore } from "@/features/auth/auth.store";
@@ -76,6 +78,16 @@ export default function NutritionDashboard() {
 
   const nutritionGoals = nutritionGoalsData?.goal || nutritionGoalsData;
 
+  const [isPlanExpired, setIsPlanExpired] = useState(false);
+
+  useEffect(() => {
+    if (nutritionGoals) {
+      const today = new Date();
+      const endDate = new Date(nutritionGoals.endDate);
+      setIsPlanExpired(today > endDate);
+    }
+  }, [nutritionGoals]);
+
   // Then fetch daily nutrition data for the selected date
   const { data: dailyNutrition, isLoading: dailyLoading } = useQuery({
     queryKey: ["dailyNutrition", format(selectedDate, "yyyy-MM-dd")],
@@ -97,17 +109,16 @@ export default function NutritionDashboard() {
     const startDate = new Date(nutritionGoals.startDate);
     const endDate = new Date(nutritionGoals.endDate);
 
-    // Reset time components to compare dates only (ignore time)
     const checkDate = new Date(date);
     checkDate.setHours(0, 0, 0, 0);
 
-    const normalizedStartDate = new Date(startDate);
-    normalizedStartDate.setHours(0, 0, 0, 0);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
 
-    const normalizedEndDate = new Date(endDate);
-    normalizedEndDate.setHours(0, 0, 0, 0);
+    // If plan expired, return false
+    if (isPlanExpired) return false;
 
-    return checkDate >= normalizedStartDate && checkDate <= normalizedEndDate;
+    return checkDate >= startDate && checkDate <= endDate;
   };
 
   // Calculate daily progress from tracked meals
@@ -294,6 +305,26 @@ export default function NutritionDashboard() {
 
   return (
     <div className="container mx-auto px-2 py-2">
+      {isPlanExpired && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+          <p className="mb-2">
+            Your nutrition plan has expired! What would you like to do?
+          </p>
+          <div className="flex gap-2">
+            {/* <Button onClick={() => extendPlan(nutritionGoals._id, 7)}>
+              Extend Plan by 7 Days
+            </Button> */}
+
+            <Button
+              variant="default"
+              onClick={() => regeneratePlan(nutritionGoals._id)} // call regenerate function
+            >
+              Regenerate New Plan
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column - Calendar and Charts */}
         <div className="space-y-6">

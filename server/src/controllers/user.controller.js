@@ -11,6 +11,124 @@ import { MealLog } from "../models/MealLog.js";
 import Notification from "../models/Notification.js";
 import { buildFoodSuggestionsPrompt } from "../utils/buildFoodSuggestionsPrompt.js";
 
+// Extend an existing active nutrition plan by a given number of days
+export const extendPlan = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { extraDays } = req.body; // Number of days to extend
+
+    if (!extraDays || extraDays <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a valid number of days to extend",
+      });
+    }
+
+    // Find the active nutrition goal
+    const activeGoal = await NutritionGoal.findOne({ userId, isActive: true });
+    if (!activeGoal) {
+      return res.status(404).json({
+        success: false,
+        message: "No active nutrition plan found to extend",
+      });
+    }
+
+    // Extend the end date
+    const newEndDate = new Date(activeGoal.endDate);
+    newEndDate.setDate(newEndDate.getDate() + extraDays);
+
+    activeGoal.endDate = newEndDate;
+    await activeGoal.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Nutrition plan extended by ${extraDays} day(s)`,
+      nutritionGoal: activeGoal,
+    });
+  } catch (err) {
+    console.error("Error extending nutrition plan:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error while extending plan",
+      error: err.message,
+    });
+  }
+};
+
+// Regenerate nutrition plan: recalculates calories/macros and creates a new plan
+export const regeneratePlan = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // Get user profile
+    const profile = await Profile.findOne({ user: userId });
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        message: "User profile not found",
+      });
+    }
+
+    // Deactivate existing active plans
+    await NutritionGoal.updateMany(
+      { userId, isActive: true },
+      { $set: { isActive: false, endDate: new Date() } }
+    );
+
+    // Recalculate nutrition values
+    const bmr = await calculateBmr(profile.toObject());
+    const tdee = await calculateTdee(bmr, profile.activityLevel);
+    const targetCalories = await adjustCaloriesForGoal(
+      tdee,
+      profile.fitnessGoal
+    );
+    const macros = await calculateMacros(
+      targetCalories,
+      profile.fitnessGoal,
+      profile.toObject()
+    );
+
+    // Calculate meal distribution
+    const mealsPerDay = parseInt(profile.mealFrequency) || 4;
+    const mealDistribution = calculateMealDistribution(macros, mealsPerDay);
+
+    // Set new plan duration (default 7 days)
+    const startDate = new Date();
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6);
+
+    // Create new nutrition goal
+    const newGoal = new NutritionGoal({
+      userId,
+      calories: targetCalories,
+      protein: macros.protein,
+      carbs: macros.carbs,
+      fat: macros.fat,
+      fiber: macros.fiber,
+      mealDistribution,
+      startDate,
+      endDate,
+      isActive: true,
+    });
+
+    await newGoal.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Nutrition plan regenerated successfully",
+      nutritionGoal: newGoal,
+      extraInfo: { bmr, tdee },
+    });
+  } catch (err) {
+    console.error("Error regenerating nutrition plan:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error while regenerating plan",
+      error: err.message,
+    });
+  }
+};
+
 export const aiFoodSuggestions = async (req, res) => {
   console.log("AI food suggestions backend");
 

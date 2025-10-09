@@ -4,6 +4,12 @@ import { MealLog } from "../models/MealLog.js";
 import { NutritionGoal } from "../models/NutritionGoal.js";
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
+import { checkExpiredGoals } from "../utils/check.expired.goals.js";
+
+cron.schedule("0 0 * * *", async () => {
+  console.log("Running daily goal expiration check...");
+  await checkExpiredGoals();
+});
 
 export const sendNotification = async (
   user,
@@ -64,7 +70,6 @@ cron.schedule("53 9 * * *", async () => {
   console.log("⏰ Sending breakfast reminders...");
   await sendMealReminder("breakfast");
 });
-
 
 // Separate cron for snack at 6:13 PM
 // cron.schedule("15 18 * * *", async () => {

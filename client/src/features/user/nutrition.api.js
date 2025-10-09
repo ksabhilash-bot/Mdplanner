@@ -34,3 +34,38 @@ export const getUserNutritionGoals = async () => {
     console.error("Error fetching nutrition goal:", error);
   }
 };
+
+export const extendPlan = async (goalId, extraDays) => {
+  try {
+    const response = await axiosInstance.patch(
+      `/user/nutrition-goals/extend/${goalId}`,
+      {
+        extraDays,
+      }
+    );
+
+    alert("Plan extended successfully!");
+  } catch (error) {
+    console.error("Error extending nutrition plan:", error);
+    const message =
+      error.response?.data?.message ||
+      "Something went wrong while extending the plan";
+    alert(message);
+  }
+};
+
+export const regeneratePlan = async (goalId) => {
+  try {
+    const response = await axiosInstance.post(
+      `/user/nutrition-goals/regenerate/${goalId}`
+    );
+
+    alert("New plan generated successfully!");
+  } catch (error) {
+    console.error("Error regenerating nutrition plan:", error);
+    const message =
+      error.response?.data?.message ||
+      "Something went wrong while regenerating the plan";
+    alert(message);
+  }
+};
