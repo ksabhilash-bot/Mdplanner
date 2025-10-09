@@ -13,7 +13,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://mdplanner-frontend.onrender.com", // your frontend dev origin
+    origin: "http://localhost:5173", // your frontend dev origin
     credentials: true, // only if you're using cookies
   })
 );

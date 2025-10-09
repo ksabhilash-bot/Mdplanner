@@ -59,6 +59,13 @@ cron.schedule("0 8,13,17,20 * * *", async () => {
   }
 });
 
+// Send breakfast reminder at 9:55 AM
+cron.schedule("53 9 * * *", async () => {
+  console.log("⏰ Sending breakfast reminders...");
+  await sendMealReminder("breakfast");
+});
+
+
 // Separate cron for snack at 6:13 PM
 // cron.schedule("15 18 * * *", async () => {
 //   console.log("⏰ Sending 6:15 PM snack reminders...");

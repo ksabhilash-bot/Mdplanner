@@ -9,7 +9,11 @@ const userSchema = new mongoose.Schema(
     isProfileComplete: { type: Boolean, default: false },
 
     // New field: status (active, inactive, banned)
-    status: { type: String, enum: ["active", "inactive", "banned"], default: "active" },
+    status: {
+      type: String,
+      enum: ["active", "inactive", "banned"],
+      default: "active",
+    },
 
     // Reference to Profile (1-to-1)
     profile: { type: mongoose.Schema.Types.ObjectId, ref: "Profile" },
