@@ -11,6 +11,71 @@ import { MealLog } from "../models/MealLog.js";
 import Notification from "../models/Notification.js";
 import { buildFoodSuggestionsPrompt } from "../utils/buildFoodSuggestionsPrompt.js";
 
+export const activatePlan = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const goal = await NutritionGoal.findOne({ userId, isActive: false }).sort({ createdAt: -1 });
+
+    if (!goal) {
+      return res.status(404).json({
+        success: false,
+        message: "No inactive nutrition plan found",
+      });
+    }
+
+    goal.isActive = true;
+    goal.isExpired = false;
+    await goal.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Nutrition plan reactivated successfully",
+      nutritionGoal: goal,
+    });
+  } catch (err) {
+    console.error("Error reactivating plan:", err);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+
+// Mark a plan as expired
+export const markPlanAsExpired = async (req, res) => {
+  try {
+    console.log("ammmmm");
+    const userId = req.user.userId;
+
+    const activeGoal = await NutritionGoal.findOne({ userId, isActive: true });
+    if (!activeGoal) {
+      return res.status(404).json({
+        success: false,
+        message: "No active plan found",
+      });
+    }
+
+    // Mark plan as expired
+    activeGoal.isActive = false;
+    activeGoal.isExpired = true;
+    await activeGoal.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Nutrition plan marked as expired",
+      nutritionGoal: activeGoal,
+    });
+  } catch (err) {
+    console.error("Error expiring plan:", err);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
 // Extend an existing active nutrition plan by a given number of days
 export const extendPlan = async (req, res) => {
   try {
@@ -25,7 +90,8 @@ export const extendPlan = async (req, res) => {
     }
 
     // Find the active nutrition goal
-    const activeGoal = await NutritionGoal.findOne({ userId, isActive: true });
+    const activeGoal = await NutritionGoal.findOne({ userId, isActive: false });
+    console.log(activeGoal);
     if (!activeGoal) {
       return res.status(404).json({
         success: false,
@@ -744,7 +810,7 @@ export const getNutritionGoal = async (req, res) => {
 
     const goal = await NutritionGoal.findOne({
       userId,
-      isActive: true,
+      // isActive: true,
     }).sort({ createdAt: -1 });
 
     console.log("goooooooooooooooo", goal);

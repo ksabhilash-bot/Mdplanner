@@ -19,35 +19,37 @@ import { useQuery } from "@tanstack/react-query";
 import { FullPageSpinner } from "@/components/others/full-page-spinner";
 import { useState, useEffect } from "react";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-} from "recharts";
-import {
   extendPlan,
   getDailyNutrition,
   getNutritionHistory,
   getUserNutritionGoals,
+  markPlanAsExpired,
   regeneratePlan,
+  activatePlan,
 } from "./nutrition.api";
 
 import { useAuthStore } from "@/features/auth/auth.store";
 import { useProfileStore } from "../user/profile/profile.store";
 import { fetchUserProfile } from "../user/profile/profile.api";
+import { updateUserProfile } from "../user/profile/profile.api";
+import { useMutation } from "@tanstack/react-query";
 
 export default function NutritionDashboard() {
   const { user, setUser } = useAuthStore();
   const { profileData, setProfileData } = useProfileStore();
 
+  const [showExtendModal, setShowExtendModal] = useState(false);
+  const [showRegenerateModal, setShowRegenerateModal] = useState(false);
+  const [extraDays, setExtraDays] = useState("");
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [regenerateFormData, setRegenerateFormData] = useState({
+    weight: "",
+    fitnessGoal: "lose",
+    duration: "7",
+  });
+
   // Fetch fresh data
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["userProfile"],
     queryFn: fetchUserProfile,
   });
@@ -60,6 +62,17 @@ export default function NutritionDashboard() {
     }
   }, [data, setUser, setProfileData]);
 
+  // Initialize regenerate form data when profile data is available
+  useEffect(() => {
+    if (profileData) {
+      setRegenerateFormData({
+        weight: profileData.weight || "",
+        fitnessGoal: profileData.fitnessGoal || "lose",
+        duration: profileData.duration || "7",
+      });
+    }
+  }, [profileData]);
+
   // Handle error case
   useEffect(() => {
     if (isError) {
@@ -71,40 +84,168 @@ export default function NutritionDashboard() {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   // First, fetch user nutrition goals
-  const { data: nutritionGoalsData, isLoading: goalsLoading } = useQuery({
+  const {
+    data: nutritionGoalsData,
+    isLoading: goalsLoading,
+    refetch: refetchGoals,
+    isFetching: goalsFetching,
+  } = useQuery({
     queryKey: ["nutritionGoals"],
     queryFn: getUserNutritionGoals,
   });
 
   const nutritionGoals = nutritionGoalsData?.goal || nutritionGoalsData;
+  console.log("hhh", nutritionGoals);
 
-  const [isPlanExpired, setIsPlanExpired] = useState(false);
+  // Calculate isPlanExpired directly from nutritionGoals
+  const calculateIsPlanExpired = () => {
+    if (!nutritionGoals) return true;
+    if (!nutritionGoals.isActive) return true;
+
+    const today = new Date();
+    const endDate = new Date(nutritionGoals.endDate);
+
+    // Reset hours to compare dates properly
+    today.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+
+    // Plan is expired only if today is AFTER endDate
+    return today > endDate;
+  };
+
+  const { mutate: expirePlan } = useMutation({
+    mutationFn: markPlanAsExpired,
+    onSuccess: () => {
+      console.log("Plan successfully marked as expired");
+      queryClient.invalidateQueries(["nutritionGoals"]);
+    },
+    onError: (error) => {
+      console.error("Error expiring plan:", error);
+    },
+  });
+
+  const isPlanExpired = calculateIsPlanExpired();
+  // console.log("plan", isPlanExpired);
 
   useEffect(() => {
-    if (nutritionGoals) {
-      const today = new Date();
-      const endDate = new Date(nutritionGoals.endDate);
-      setIsPlanExpired(today > endDate);
+    if (isPlanExpired) {
+      expirePlan();
     }
-  }, [nutritionGoals]);
+  }, [isPlanExpired]);
+
+  const [expiredSynced, setExpiredSynced] = useState(false);
+
+  useEffect(() => {
+    if (isPlanExpired && !expiredSynced) {
+      expirePlan();
+      setExpiredSynced(true);
+    }
+  }, [isPlanExpired, expiredSynced]);
 
   // Then fetch daily nutrition data for the selected date
-  const { data: dailyNutrition, isLoading: dailyLoading } = useQuery({
+  const {
+    data: dailyNutrition,
+    isLoading: dailyLoading,
+    refetch: refetchDailyNutrition,
+  } = useQuery({
     queryKey: ["dailyNutrition", format(selectedDate, "yyyy-MM-dd")],
     queryFn: () => getDailyNutrition(format(selectedDate, "yyyy-MM-dd")),
-    enabled: !!nutritionGoals, // Only fetch after we have the goals
+    enabled: !!nutritionGoals && !isPlanExpired, // Only fetch if we have goals and plan is not expired
   });
 
-  // Fetch nutrition history for charts
-  const { data: nutritionHistory, isLoading: historyLoading } = useQuery({
-    queryKey: ["nutritionHistory"],
-    queryFn: getNutritionHistory,
-    enabled: !!nutritionGoals, // Only fetch after we have the goals
-  });
+  // Handle regenerate form input changes
+  const handleRegenerateInputChange = (field, value) => {
+    setRegenerateFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  // Handle regenerate form submission
+  const handleRegenerateSubmit = async (e) => {
+    e.preventDefault();
+    setIsRegenerating(true);
+
+    try {
+      // Prepare the data for regeneration
+      const updateData = {};
+
+      if (regenerateFormData.weight !== profileData?.weight) {
+        updateData.weight = parseFloat(regenerateFormData.weight);
+      }
+
+      if (regenerateFormData.fitnessGoal !== profileData?.fitnessGoal) {
+        updateData.fitnessGoal = regenerateFormData.fitnessGoal;
+      }
+
+      if (regenerateFormData.duration !== profileData?.duration) {
+        updateData.duration = regenerateFormData.duration;
+      }
+
+      // Always include planType if it exists in profile
+      if (profileData?.planType) {
+        updateData.planType = profileData.planType;
+      }
+
+      console.log("Updating profile with:", updateData);
+
+      // Update the profile with new data - this will trigger the nutrition plan regeneration
+      await updateUserProfile(updateData);
+
+      // Wait for backend to process
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Refetch ALL data in sequence
+      await refetch(); // Refetch profile first
+      await refetchGoals(); // Then refetch nutrition goals
+      await refetchDailyNutrition(); // Then daily nutrition
+
+      // Wait a bit more for state updates
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Reset selected date to force calendar refresh
+      setSelectedDate(new Date());
+
+      // Close the modal
+      setShowRegenerateModal(false);
+
+      console.log("Profile updated and plan regenerated successfully");
+
+      await updateUserProfile(updateData);
+      await activatePlan(); // 👈 reactivate the new plan
+      await refetch();
+      await refetchGoals();
+      await refetchDailyNutrition();
+    } catch (err) {
+      console.error("Error regenerating plan:", err);
+      alert("Error regenerating plan. Please try again.");
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
+  // Handle extend plan
+  const handleExtendPlan = async () => {
+    if (!extraDays) {
+      alert("Please enter the number of days.");
+      return;
+    }
+
+    try {
+      await extendPlan(nutritionGoals._id, parseInt(extraDays));
+      await activatePlan(); // 👈 reactivate plan in backend
+      await refetchGoals();
+      setShowExtendModal(false);
+      setExtraDays("");
+    } catch (error) {
+      console.error("Error extending plan:", error);
+      alert("Error extending plan. Please try again.");
+    }
+  };
 
   // Update the isDateInGoalPeriod function to properly handle date comparisons
   const isDateInGoalPeriod = (date) => {
-    if (!nutritionGoals) return true;
+    if (!nutritionGoals || isPlanExpired) return false;
 
     const startDate = new Date(nutritionGoals.startDate);
     const endDate = new Date(nutritionGoals.endDate);
@@ -114,9 +255,6 @@ export default function NutritionDashboard() {
 
     startDate.setHours(0, 0, 0, 0);
     endDate.setHours(0, 0, 0, 0);
-
-    // If plan expired, return false
-    if (isPlanExpired) return false;
 
     return checkDate >= startDate && checkDate <= endDate;
   };
@@ -224,74 +362,6 @@ export default function NutritionDashboard() {
     });
   };
 
-  // Generate meal-specific chart data
-  const getMealChartData = () => {
-    if (!dailyNutrition?.meals) return [];
-
-    return dailyNutrition.meals.map((meal) => ({
-      mealType: meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1),
-      consumed: meal.totals?.calories || 0,
-      target: nutritionGoals?.mealDistribution?.[meal.mealType]?.calories || 0,
-      foods: meal.foods?.length || 0,
-    }));
-  };
-
-  // Generate chart data from nutrition history or create data for goal period
-  const getChartData = () => {
-    const targetCalories = nutritionGoals?.calories || 2000;
-
-    // If we have nutrition history data, use it
-    if (nutritionHistory && nutritionHistory.length > 0) {
-      return nutritionHistory.map((day) => {
-        const dayDate = day.date ? new Date(day.date) : new Date();
-        const dayName = format(dayDate, "EEE");
-        const dateLabel = format(dayDate, "MMM d");
-
-        return {
-          name: `${dayName} ${dateLabel}`,
-          shortName: dayName,
-          date: dateLabel,
-          consumed: day.totalCalories || 0,
-          target: targetCalories,
-        };
-      });
-    }
-
-    // If no history exists, return data for the goal period
-    if (nutritionGoals) {
-      const startDate = new Date(nutritionGoals.startDate);
-      const endDate = new Date(nutritionGoals.endDate);
-      const daysInPeriod =
-        Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-
-      return Array.from({ length: daysInPeriod }, (_, i) => {
-        const date = addDays(startDate, i);
-        return {
-          name: format(date, "EEE MMM d"),
-          shortName: format(date, "EEE"),
-          date: format(date, "MMM d"),
-          consumed: 0,
-          target: targetCalories,
-        };
-      });
-    }
-
-    // Fallback: return empty data for the last 7 days
-    return Array.from({ length: 7 }, (_, i) => {
-      const date = subDays(new Date(), 6 - i);
-      return {
-        name: format(date, "EEE MMM d"),
-        shortName: format(date, "EEE"),
-        date: format(date, "MMM d"),
-        consumed: 0,
-        target: targetCalories,
-      };
-    });
-  };
-
-  const chartData = getChartData();
-  const mealChartData = getMealChartData();
-  const mealProgress = getMealProgress();
   const { mealsCompleted, caloriesConsumed } = getDailyProgress();
   const targetCalories = nutritionGoals?.calories || 2000;
   const goalStartDate = nutritionGoals
@@ -300,24 +370,34 @@ export default function NutritionDashboard() {
   const goalEndDate = nutritionGoals ? new Date(nutritionGoals.endDate) : null;
   const mealDistribution = getMealDistribution();
 
-  if (goalsLoading || dailyLoading || historyLoading)
+  // Show loading only when initially loading, not when refetching
+  if (isLoading || goalsLoading || dailyLoading) {
     return <FullPageSpinner />;
+  }
 
   return (
     <div className="container mx-auto px-2 py-2">
+      {/* Debug info - remove in production */}
+      <div className="text-xs text-gray-500 mb-2">
+        Plan Expired: {isPlanExpired ? "Yes" : "No"} | Has Goals:{" "}
+        {!!nutritionGoals ? "Yes" : "No"} | Start:{" "}
+        {goalStartDate ? format(goalStartDate, "MMM d") : "N/A"} | End:{" "}
+        {goalEndDate ? format(goalEndDate, "MMM d") : "N/A"}
+      </div>
+
       {isPlanExpired && (
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
           <p className="mb-2">
             Your nutrition plan has expired! What would you like to do?
           </p>
           <div className="flex gap-2">
-            {/* <Button onClick={() => extendPlan(nutritionGoals._id, 7)}>
-              Extend Plan by 7 Days
-            </Button> */}
+            <Button variant="outline" onClick={() => setShowExtendModal(true)}>
+              Extend Plan
+            </Button>
 
             <Button
               variant="default"
-              onClick={() => regeneratePlan(nutritionGoals._id)} // call regenerate function
+              onClick={() => setShowRegenerateModal(true)}
             >
               Regenerate New Plan
             </Button>
@@ -326,7 +406,7 @@ export default function NutritionDashboard() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column - Calendar and Charts */}
+        {/* Left Column - Calendar */}
         <div className="space-y-6">
           <Card>
             <CardHeader>
@@ -337,18 +417,16 @@ export default function NutritionDashboard() {
                 <p className="text-lg font-medium">
                   {format(selectedDate, "EEEE, MMMM d")}
                 </p>
-                {/* // Also update the Today button logic to check if today is in
-                the goal period */}
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setSelectedDate(new Date())}
-                  disabled={!isDateInGoalPeriod(new Date())} // Disable if today is not in goal period
+                  disabled={!isDateInGoalPeriod(new Date())}
                 >
                   Today
                 </Button>
               </div>
-              {nutritionGoals && (
+              {nutritionGoals && !isPlanExpired && (
                 <div className="mb-3 text-sm text-gray-600">
                   <p>
                     Goal Period: {format(goalStartDate, "MMM d")} -{" "}
@@ -645,6 +723,112 @@ export default function NutritionDashboard() {
           </Card>
         </div>
       </div>
+
+      {/* Extend Plan Modal */}
+      {showExtendModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 p-6 rounded-2xl shadow-2xl w-80 border border-zinc-200 dark:border-zinc-700 transition-all duration-200">
+            <h2 className="text-lg font-semibold mb-4">Extend Plan</h2>
+            <label className="block text-sm mb-2">
+              Enter extra days to extend:
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={extraDays}
+              onChange={(e) => setExtraDays(e.target.value)}
+              className="w-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-2 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="e.g. 7"
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowExtendModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleExtendPlan}>Confirm</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Regenerate Plan Modal */}
+      {showRegenerateModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 p-6 rounded-2xl shadow-2xl w-[400px] border border-zinc-200 dark:border-zinc-700 transition-all duration-200">
+            <h2 className="text-lg font-semibold mb-4">Regenerate New Plan</h2>
+            <p className="text-sm mb-3 text-gray-600 dark:text-gray-400">
+              Update any details before regenerating your plan.
+            </p>
+
+            {/* Form for regeneration */}
+            <form onSubmit={handleRegenerateSubmit} className="space-y-3">
+              <div>
+                <label className="block text-sm mb-1">Weight (kg)</label>
+                <input
+                  type="number"
+                  value={regenerateFormData.weight}
+                  onChange={(e) =>
+                    handleRegenerateInputChange("weight", e.target.value)
+                  }
+                  className="w-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="e.g. 70"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm mb-1">Goal</label>
+                <select
+                  value={regenerateFormData.fitnessGoal}
+                  onChange={(e) =>
+                    handleRegenerateInputChange("fitnessGoal", e.target.value)
+                  }
+                  className="w-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                >
+                  <option value="lose">Lose Weight</option>
+                  <option value="maintain">Maintain</option>
+                  <option value="gain">Gain Weight</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm mb-1">Duration</label>
+                <select
+                  value={regenerateFormData.duration}
+                  onChange={(e) =>
+                    handleRegenerateInputChange("duration", e.target.value)
+                  }
+                  className="w-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                >
+                  <option value="1">1 Day</option>
+                  <option value="3">3 Days</option>
+                  <option value="7">7 Days</option>
+                  <option value="14">14 Days</option>
+                  <option value="30">1 Month</option>
+                </select>
+              </div>
+
+              {/* Footer Buttons */}
+              <div className="flex justify-end gap-2 mt-5">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowRegenerateModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isRegenerating}>
+                  {isRegenerating ? "Regenerating..." : "Regenerate"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

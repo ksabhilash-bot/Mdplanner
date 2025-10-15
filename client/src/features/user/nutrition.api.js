@@ -1,5 +1,28 @@
 import axiosInstance from "@/lib/axiosInstance";
 
+export const activatePlan = async () => {
+  try {
+    const response = await axiosInstance.patch(`/user/nutrition-goals/activate`);
+    return response.data;
+  } catch (error) {
+    console.error("Error activating plan:", error);
+    throw error;
+  }
+};
+
+
+export const markPlanAsExpired = async () => {
+  try {
+    console.log('discooo')
+    const response = await axiosInstance.patch(`/user/nutrition/expire`);
+    return response.data;
+  } catch (error) {
+    console.error("Error marking plan as expired:", error);
+    throw error;
+  }
+};
+
+
 // API functions
 export const getDailyNutrition = async (date) => {
   try {

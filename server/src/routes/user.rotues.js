@@ -13,6 +13,8 @@ import {
   aiFoodSuggestions,
   extendPlan,
   regeneratePlan,
+  markPlanAsExpired,
+  activatePlan
 } from "../controllers/user.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
@@ -39,5 +41,8 @@ router.post(
   authMiddleware,
   regeneratePlan
 );
+router.patch("/nutrition/expire", authMiddleware, markPlanAsExpired);
+router.patch("/nutrition-goals/activate",authMiddleware, activatePlan);
+
 
 export default router;
