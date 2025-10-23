@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { signUpService, loginService } from "../services/auth.service.js";
 import User from "../models/User.js";
+import { sendWelcomeEmail } from "../services/welcomemail.js";
 
 // --------------------
 // Cookie helpers

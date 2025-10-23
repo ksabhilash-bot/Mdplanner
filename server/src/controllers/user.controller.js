@@ -11,6 +11,7 @@ import { MealLog } from "../models/MealLog.js";
 import Notification from "../models/Notification.js";
 import { buildFoodSuggestionsPrompt } from "../utils/buildFoodSuggestionsPrompt.js";
 
+
 export const activatePlan = async (req, res) => {
   try {
     const userId = req.user.userId;

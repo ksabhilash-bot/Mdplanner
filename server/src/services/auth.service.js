@@ -1,9 +1,11 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import generateToken from "../utils/generateToken.js";
+import { sendWelcomeEmail } from "./welcomemail.js";
 
 export const signUpService = async ({ name, email, password }) => {
   const existingUser = await User.findOne({ email });
+  console.log("Existing user check:", existingUser);
 
   if (existingUser) {
     throw new Error("User already exists");
@@ -18,6 +20,7 @@ export const signUpService = async ({ name, email, password }) => {
   });
 
   const token = generateToken(user._id);
+  await sendWelcomeEmail({email, name}); // ✅ Send welcome email after successful signup
 
   return {
     token,
@@ -36,8 +39,11 @@ export const loginService = async ({ email, password }) => {
 
   // We need to get the password separately for comparison
   const userWithPassword = await User.findOne({ email }).select("password");
-  const matchedPassword = await bcrypt.compare(password, userWithPassword.password);
-  
+  const matchedPassword = await bcrypt.compare(
+    password,
+    userWithPassword.password
+  );
+
   if (!matchedPassword) {
     throw new Error("Incorrect password");
   }
